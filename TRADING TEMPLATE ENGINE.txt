@@ -67,7 +67,7 @@
 #  d96e6831ec37bcc17e5117285aed66c2c56c72308d825015617521effce6592e 10155 code/seed_prices.py
 #  7ca841238a688dd0b6a02197bcfc64f73d5fa2fd02b6e1c83614f3496d145d02 5730 code/seeds/allowed-pairs.json
 #  c9c90f4baa002df7d0fa2a64f8c7ed0345fe7c12e8d8b583f3d52153f1ce81de 191 code/seeds/cadence.json
-#  3f66004540a0c253760f7112103fc76e08a319378155638ebfd529ef7cecd1b2 50966 code/seeds/cost-basis.seed.json
+#  2dd324b7569fc75c7d0f2381baaeb767f3967ed4ef2ea95401cd0e7c93f1297e 50966 code/seeds/cost-basis.seed.json
 #  9af045a13adbb3ee1a834384a3c4e3401b58b7ce9e57097d1f40b97580d87509 198 code/seeds/reporting.json
 #  22cc9ada5858cd433fd4bccd9fc96789677a094fb572f91b1a9009e808c686b9 2161 code/setup_state.py
 #  62e2e3d34a35fa929f5118b06d2d8d62208453f906e743d2fb0b21fc349a530e 37799 code/solana_rpc.py
@@ -19219,7 +19219,7 @@ if __name__ == "__main__":
 }
 === END FILE ===
 
-=== FILE: code/seeds/cost-basis.seed.json | sha256=3f66004540a0c253760f7112103fc76e08a319378155638ebfd529ef7cecd1b2 | bytes=50966 ===
+=== FILE: code/seeds/cost-basis.seed.json | sha256=2dd324b7569fc75c7d0f2381baaeb767f3967ed4ef2ea95401cd0e7c93f1297e | bytes=50966 ===
 {
   "method": "per_pair_rate_basis",
   "solana_rpc_order": "helius, alchemy, public",
@@ -19443,7 +19443,7 @@ if __name__ == "__main__":
     },
     "orca_top1": {
       "enabled": false,
-      "rule": "For the single best-ranked candidate (quote_rank=1) each check, also quote Orca Whirlpool via Jupiter swap/v2/build?dexes=Whirlpool (Orca has no public REST swap API). Compare Jupiter manual, Raydium, Orca; best fee-inclusive net wins. If Orca wins and clears, execute via the same build/sign/Helius\u2192Alchemy path (payload shape matches jupiter_manual). Routes 2\u20133 stay Jupiter+Raydium only. Orca quote/build failures are logged and ignored. Slippage 30 bps.",
+      "rule": "For the single best-ranked candidate (quote_rank=1) each check, also quote Orca Whirlpool via Jupiter swap/v2/build?dexes=Whirlpool (Orca has no public REST swap API). Compare Jupiter manual, Raydium, Orca; best fee-inclusive net wins. If Orca wins and clears, execute via the same build/sign/Helius\u2192Alchemy path (payload shape matches jupiter_manual). Routes 2\u20135 stay Jupiter+Raydium only. Orca quote/build failures are logged and ignored. Slippage 30 bps.",
       "via": "jupiter_build_dexes_Whirlpool"
     },
     "dropped_send_wait": "an unconfirmed first send is polled until it lands (that is the fill, no more sends) or is provably expired (block height on the RPC that issued its blockhash > its lastValidBlockHeight, then a final full-history status read finds nothing), capped ~110 s after the 10 s confirm window. Only after proven expiry the existing fresh-quote Alchemy backup send (new blockhash, new signature, trade rules re-checked). Not provable in the cap: stop, no re-send. One such wait per check, then no new sends that check. No wait if the check is past 150 s; no backup send past 320 s (runner timeout 480 s).",

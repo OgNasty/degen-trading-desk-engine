@@ -221,7 +221,7 @@
     },
     "orca_top1": {
       "enabled": false,
-      "rule": "For the single best-ranked candidate (quote_rank=1) each check, also quote Orca Whirlpool via Jupiter swap/v2/build?dexes=Whirlpool (Orca has no public REST swap API). Compare Jupiter manual, Raydium, Orca; best fee-inclusive net wins. If Orca wins and clears, execute via the same build/sign/Helius\u2192Alchemy path (payload shape matches jupiter_manual). Routes 2\u20133 stay Jupiter+Raydium only. Orca quote/build failures are logged and ignored. Slippage 30 bps.",
+      "rule": "For the single best-ranked candidate (quote_rank=1) each check, also quote Orca Whirlpool via Jupiter swap/v2/build?dexes=Whirlpool (Orca has no public REST swap API). Compare Jupiter manual, Raydium, Orca; best fee-inclusive net wins. If Orca wins and clears, execute via the same build/sign/Helius\u2192Alchemy path (payload shape matches jupiter_manual). Routes 2\u20135 stay Jupiter+Raydium only. Orca quote/build failures are logged and ignored. Slippage 30 bps.",
       "via": "jupiter_build_dexes_Whirlpool"
     },
     "dropped_send_wait": "an unconfirmed first send is polled until it lands (that is the fill, no more sends) or is provably expired (block height on the RPC that issued its blockhash > its lastValidBlockHeight, then a final full-history status read finds nothing), capped ~110 s after the 10 s confirm window. Only after proven expiry the existing fresh-quote Alchemy backup send (new blockhash, new signature, trade rules re-checked). Not provable in the cap: stop, no re-send. One such wait per check, then no new sends that check. No wait if the check is past 150 s; no backup send past 320 s (runner timeout 480 s).",
