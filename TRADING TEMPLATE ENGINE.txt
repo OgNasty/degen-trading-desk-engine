@@ -4,7 +4,7 @@
 #RELEASED 2026-10-15
 #BUILT 2026-10-15
 #FILE_COUNT 89
-#TOTAL_BYTES 1399091
+#TOTAL_BYTES 1404631
 #SETUP_MD sha256=7a96be56596dcabf8204a0d29aa569c1af87eba30803bdc7c95f08e7713abaff bytes=33447
 #RULES 1) each block: header line "=== FILE: path | sha256=H | bytes=N[ | enc=base64] ===", newline, exactly N bytes of payload, newline, "=== END FILE ===". 2) N = payload byte length (base64 text length when enc=base64). 3) sha256 is of the decoded raw file. 4) paths are relative, "/"-separated; root = Degen Template folder. 5) __extractor__.py is the tool, not part of the tree. 6) .sh files get mode 755. 7) .env.example -> .env and config.example.json -> config.json are made at install, per SETUP.md.
 #EXTRACT save the __extractor__.py block payload to extract.py; run: python extract.py "TRADING TEMPLATE ENGINE.txt" <out_dir>
@@ -30,7 +30,7 @@
 #  bb304d3d7d615e743ab0da0118889ceff60a9eaa7f155a0663456ce9aaa45988 17592 code/daily_rebalance_v2.py
 #  c1b0066082faa1f0fc39bfb2ce5455a97c2f7681832f8b04ff9de92e4632e481 2420 code/dashboard-worker/src/index.js
 #  9ea41e9a7a276cb8ed42ffc7f216ccc6949953822bad0fc6446f8e4f6342e2e1 648 code/dashboard-worker/wrangler.toml
-#  c36f2965e1c7f4f640292190608a4d19e9419393657d427083017122e70d069e 100216 code/dashboard/bot-desk.html
+#  199ad7979a2083071171a58cc15e23846edd44f0b39a161d87defcae048c2433 105756 code/dashboard/bot-desk.html
 #  d0efe57badcd9eaa59063164140df5a38ac2bf3d1c82de439c2e2fb4337d0cbd 12376 code/dashboard/favicon.png
 #  621d4b26ae62cdfb0e719c3a2162fbd5a0336d42ed239799f9e4e219bfa63e72 258909 code/dashboard/piespider.png
 #  56ac7f61a4b8eaf83aa4ad8a93a4f1767e8b2fee59232d6a2d8d8e7637730f96 11746 code/dashboard_publish.py
@@ -6946,7 +6946,7 @@ not_found_handling = "none"
 
 === END FILE ===
 
-=== FILE: code/dashboard/bot-desk.html | sha256=c36f2965e1c7f4f640292190608a4d19e9419393657d427083017122e70d069e | bytes=100216 ===
+=== FILE: code/dashboard/bot-desk.html | sha256=199ad7979a2083071171a58cc15e23846edd44f0b39a161d87defcae048c2433 | bytes=105756 ===
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7212,7 +7212,7 @@ not_found_handling = "none"
   .spider b.L.a { --a:-55deg; --b:-20deg; } .spider b.L.b { --a:-8deg; --b:16deg; } .spider b.L.c { --a:24deg; --b:52deg; }
   .spider b.R.a { --a:55deg; --b:20deg; } .spider b.R.b { --a:8deg; --b:-16deg; } .spider b.R.c { --a:-24deg; --b:-52deg; }
   @media (max-width:900px) {
-    html, body { min-height: var(--app-height, 100dvh); }
+    html, body { min-height: var(--app-height, 100vh); }
     .stats, .stats.nosav { grid-template-columns:1fr 1fr; }
     .split, .vol, .chart-row { grid-template-columns:1fr; }
     .stat b { font-size:28px; }
@@ -7223,7 +7223,18 @@ not_found_handling = "none"
     #w-pairs .rest-scroll { max-height:none !important; overflow:visible !important; } /* share pies were cut off */
     #tape .fill { flex-wrap:wrap; font-size:12.5px; row-gap:2px; } #tape .fill .who { flex-wrap:wrap; min-width:0; flex:1 1 220px; } /* amounts + tx stay on screen */
     .share-container { flex-direction:column; align-items:stretch; }
-    .panel, .stats, .vol { content-visibility: auto; contain: layout paint; }
+    .panel, .stats, .vol { contain: layout paint; } /* mobfix1015: content-visibility:auto removed (boxes resized as they scrolled into view) */
+    /* mobfix1015: mobile boxes keep a fixed size; numbers don't change widths */
+    body { font-variant-numeric: tabular-nums; }
+    .stats, .stats.nosav { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+    .split, .vol, .chart-row { grid-template-columns:minmax(0,1fr); }
+    .vol-grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+    .stat, .asset, .vol-asset, .vol-count, .pair, .fill, .ui > * { min-width:0; }
+    .stat b, .asset b, .stat b.pop, .asset b.pop { display:block; width:fit-content; max-width:100%; white-space:nowrap; }
+    .asset .sub, .stat .sub, .vol-asset b, .vol-asset .sub, .sav-line span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+    header .pill, header .logo { white-space:nowrap; }
+    #clock { min-width:9ch; text-align:center; }
+    #closest .pair .head { flex-wrap:nowrap; } #closest .pair .who { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; } #closest .pair .head > span:last-child { flex:none; white-space:nowrap; }
     svg#chart { height:160px; }
     .pie-wrap { min-height:180px; }
     svg#pie { width:180px; height:180px; }
@@ -7474,10 +7485,13 @@ function parseLog(md){
   blocks.forEach(b=>parseClosest(b).forEach(rememberPair));
   return {time:(last.match(/^##\s+(\S+)/)||[])[1]||"",status:(last.match(/Primary edge check\s+[—–-]\s+(\S+)/)||[])[1]||"",addr:(last.match(/`([1-9A-HJ-NP-Za-km-z]{32,44})`/)||[])[1]||"",bal,total:tot?Number(tot[1].replace(/,/g,"")):null,unrealPct:tot&&tot[2]!=null?Number(tot[2]):null,funded:tot&&tot[3]?Number(tot[3].replace(/,/g,"")):null,savings:{jito:savJ?Number(savJ[1]):null,jitoUsd:savJ?Number(savJ[2].replace(/,/g,"")):null,goat:savG?Number(savG[1]):null,goatUsd:savG?Number(savG[2].replace(/,/g,"")):null},bias:bias?{least:sym(bias[1]),most:sym(bias[2])}:null,items,itemsTime,itemsHeld,next:((last.match(/^-\s*next:\s*(.+)$/m)||[])[1]||"").split("`")[0].trim()};
 }
+let mobileMatched=false;  // nomobredraw1015: on mobile the window layout is set once at load, never again
 function match(){
+  if(isMobile && mobileMatched) return;
   const p=document.getElementById("w-pairs"), tr=document.getElementById("w-trades"), tape=document.getElementById("tape");
   if(!p||!tr||!tape) return;
-  if(window.innerWidth<=900){
+  if(isMobile || window.innerWidth<=900){
+    if(isMobile) mobileMatched=true;
     tr.style.height="";
     p.style.height="";
     p.style.maxHeight="";
@@ -7739,7 +7753,7 @@ function paint(){
   }
   else if(statsChanged) noteUpdate("stats", sv.savTotal==null?(c.total==null?"balances":money(c.total)):money(sv.savTotal), ()=>applyBox("stats", statsHtml, "stats"), statsHtml);
   if(pieWillAnimate) noteUpdate("pie", "Pie Charts", ()=>updatePie(bal, pieKey), pieKey);
-  else if(!newTrade && seen.pie===pieKey && !pendingSig.pie){ drawPie(bal); rememberMix(bal); }
+  else if(!newTrade && seen.pie===pieKey && !pendingSig.pie && !(isMobile && mobPieKey===pieKey)){ drawPie(bal); rememberMix(bal); if(isMobile) mobPieKey=pieKey; }  // nomobredraw1015: mobile skips the unchanged-pie rebuild
   if(!seen.volume){ document.getElementById("volume").innerHTML=volHtml; seen.volume=volHtml; }
   else if(norm(seen.volume)!==norm(volHtml) && !newTrade) noteUpdate("volume", (deskN??rows.length)+" trades", ()=>applyBox("volume", volHtml, "volume"), volHtml);
   if(!seen.tape){ document.getElementById("tape").innerHTML=tapeHtml; seen.tape=tapeHtml; }
@@ -7752,6 +7766,44 @@ function paint(){
   if(newTrade){ pendingStats=statsHtml; pendingVol=volHtml; pendingTape=tapeHtml; pendingPie=pieKey; pendingBal=JSON.parse(JSON.stringify(bal)); }
   match();
   requestAnimationFrame(match);
+}
+let mobPieKey="";
+// mobfix1015: on mobile every window is measured once after the first data paint and pinned to that pixel
+// size (height, grid rows, inner scroll areas). Later data, animations, scroll or the address bar can't resize them.
+let mobFrozen=false;
+function mobFreeze(){
+  if(!isMobile||mobFrozen) return; mobFrozen=true;
+  const px=v=>Math.round(v*100)/100+"px", H=el=>el?el.getBoundingClientRect().height:0, css=[];
+  const pin=(sel,el,extra="")=>{ if(el) css.push(`${sel}{height:${px(H(el))}!important;min-height:0!important;max-height:none!important;box-sizing:border-box!important;${extra}}`); };
+  const rows=(sel,el)=>{ if(!el) return; const tops=new Map(); [...el.children].forEach(c=>{ const r=c.getBoundingClientRect(); const t=Math.round(r.top); tops.set(t,Math.max(tops.get(t)||0,r.height)); }); if(tops.size) css.push(`${sel}{grid-template-rows:${[...tops.keys()].sort((a,b)=>a-b).map(t=>px(tops.get(t))).join(" ")}!important;grid-auto-rows:0!important;}`); };
+  const $=id=>document.getElementById(id);
+  rows("#stats",$("stats")); rows("#volume",$("volume")); rows("#volume .vol-grid",document.querySelector("#volume .vol-grid"));
+  pin("#w-head",$("w-head"),"overflow:hidden!important;");
+  pin("#stats",$("stats"),"overflow:hidden!important;");
+  pin("#volume",$("volume"),"overflow:hidden!important;");
+  pin("#volume .vol-grid",document.querySelector("#volume .vol-grid"),"overflow:hidden!important;");
+  document.querySelectorAll("#stats>*,#volume .vol-grid>*").forEach(c=>{ c.style.overflow="hidden"; });
+  css.push("#stats>*,#volume .vol-grid>*,#volume .vol-count{overflow:hidden!important;min-height:0!important;}");
+  pin("#w-trades .chart-row",document.querySelector("#w-trades .chart-row"),"overflow:hidden!important;");
+  pin("#tape",$("tape"),"flex:none!important;overflow-x:hidden!important;overflow-y:auto!important;");
+  pin("#w-trades",$("w-trades"),"overflow:hidden!important;");
+  { const cl=$("closest"); if(cl){ [...cl.children].forEach((c,i)=>css.push(`#closest>.pair:nth-child(${i+1}){height:${px(H(c))}!important;box-sizing:border-box!important;overflow:hidden!important;}`)); pin("#closest",cl,"overflow:hidden!important;align-content:start!important;"); } }
+  pin("#checkMeta",$("checkMeta"),"overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;");
+  pin("#w-pairs .pairs-fixed",document.querySelector("#w-pairs .pairs-fixed"),"overflow:hidden!important;flex:none!important;");
+  pin("#mkt-window",$("mkt-window"),"flex:none!important;overflow-x:hidden!important;overflow-y:auto!important;");
+  pin("#w-pairs",$("w-pairs"),"overflow:hidden!important;");
+  pin("#foot",$("foot"),"overflow:hidden!important;");
+  const ui=document.querySelector(".ui"); if(ui){ css.push(`.ui{grid-template-rows:${[...ui.children].map(c=>px(H(c))).join(" ")}!important;}`); }
+  const st=document.createElement("style"); st.id="mobFreeze"; st.textContent=css.join("\n"); document.head.appendChild(st);
+}
+if(isMobile){
+  const t0=Date.now();
+  const ready=()=>{ const s=document.getElementById("stats"), m=document.getElementById("mkt-price-cap"), t=document.getElementById("tape");
+    return s&&s.children.length&&t&&t.children.length&&m&&m.children.length; };
+  const tryFreeze=()=>{ if(mobFrozen) return;
+    if((ready()&&!(typeof busy==="function"&&busy()))||Date.now()-t0>15000){ (document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(mobFreeze))); }
+    else setTimeout(tryFreeze,300); };
+  addEventListener("load",()=>setTimeout(tryFreeze,600));
 }
 let pendingStats="", pendingVol="", pendingTape="", pendingPie="", pendingBal=null, pendingClosest="", pendingPairsKey="", deferredPaint=false;
 let pendingStatsForPie="";
@@ -7906,7 +7958,7 @@ function renderMarketCards(){
     const btcCls=m.id==="bitcoin"?" btc":"";
     return `<div class="pair${goatCls}${btcCls}" data-mkt="${m.id}-pc"><span class="who">${iconHtml}<span style="color:${m.color}">${esc(m.name)}</span></span><span class="sep-dot">·</span><span class="mkt-val">${fmtMkt(px,"price",m.goat)} ${chHtml} / ${mcTxt}</span></div>`;
   }).filter(Boolean).join("");
-  const volHtml=MARKET.filter(m=>memeOn||!m.goat).map(m=>{
+  const volHtml=MARKET.filter(m=>!m.goat).map(m=>{  // novolgoat1015: Greedy Goats left out of GLOBAL VOLUME only
     const d=marketData[m.id]||{};
     const last=lastKnownMarket[m.id]||{};
     const v=hasVal(d.vol)?d.vol:(hasVal(last.vol)?last.vol:null);
@@ -8025,15 +8077,21 @@ const FILE_INTERVAL = isMobile ? 60000 : 30000;
 const QUOTE_INTERVAL = isMobile ? 180000 : 90000;
 loadFiles(); quotes(); setInterval(loadFiles, FILE_INTERVAL); setInterval(quotes, QUOTE_INTERVAL);
 
-let lastWidth = window.innerWidth;
+// noredraw1015: relayout only after a real width change (>= 20px, any device), settled for 250 ms.
+// Height-only resizes (mobile address bar / scroll) and scrollbar toggles caused by animated content
+// growing or shrinking no longer re-run match(), so the windows don't redraw from animations.
+let lastWidth = window.innerWidth, resizeT = 0;
 function onResize(){
-  const w = window.innerWidth;
-  if (w <= 900 && Math.abs(w - lastWidth) < 20) return;
-  lastWidth = w;
-  match();
-  if (!busy()) reposition();
+  clearTimeout(resizeT);
+  resizeT = setTimeout(()=>{
+    const w = window.innerWidth;
+    if (Math.abs(w - lastWidth) < 20) return;
+    lastWidth = w;
+    match();
+    if (!busy()) reposition();
+  }, 250);
 }
-addEventListener("resize", onResize);
+if(!isMobile) addEventListener("resize", onResize);  // nomobredraw1015: no resize relayout on mobile (address bar, rotation, viewport)
 
 function ptClock(){ // viewer's browser time zone (abbreviation from timeZoneName)
   const parts=new Intl.DateTimeFormat("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23",timeZoneName:"short"}).formatToParts(new Date());
