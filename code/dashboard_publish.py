@@ -51,6 +51,7 @@ FILES = {
     "favicon.png": DASH / "favicon.png",
     "image.jpg": DASH / "image.jpg",
     "metaimage.jpg": DASH / "metaimage.jpg",
+    "piespider.png": DASH / "piespider.png",
 }
 # deskjson 2026-10-11: sol-usdc-log.md and trades.jsonl stay on the PC (no log/ chunks);
 # the dashboard reads the compact desk.json built from them after each check.

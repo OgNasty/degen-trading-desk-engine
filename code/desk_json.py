@@ -280,6 +280,18 @@ def latest_check(path: Path, st: dict, blocks: list[str]) -> dict | None:
             out["bt"] = lb["t"]
     except Exception:
         pass
+    try:  # lend1015: Jupiter Lend [APR %, lent USDC] for the USD card
+        _ls = json.loads((ROOT / "lend-state.json").read_text(encoding="utf-8"))
+        if _ls.get("apr") is not None and float(_ls.get("shares") or 0) > 0:
+            out["ln"] = [round(float(_ls["apr"]), 2), round(float(_ls.get("lent_usdc") or 0), 2)]
+    except Exception:
+        pass
+    try:  # stake1015: JitoSOL bucket [APY %, bucket value in SOL] for the SOL card
+        _ss = json.loads((ROOT / "sol-stake-state.json").read_text(encoding="utf-8"))
+        if _ss.get("apy") and float(_ss.get("bucket_jitosol") or 0) > 0 and _ss.get("rate"):
+            out["js"] = [round(float(_ss["apy"]), 2), round(float(_ss["bucket_jitosol"]) * float(_ss["rate"]), 6)]
+    except Exception:
+        pass
     return out
 
 

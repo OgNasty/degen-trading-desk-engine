@@ -1,9 +1,9 @@
 {
  "engine": "Degen Trading Desk",
- "version": "1.0.0",
- "released": "2026-10-14",
- "sha256": "acb68e585fafc47d0c9b136d2cabf0e29096d8d3a01cc2cbe49dfbad24f26505",
- "bytes": 1086604,
+ "version": "1.1.0",
+ "released": "2026-10-15",
+ "sha256": "c217046d629f55618dd03e8df0f19e1e17347d49caa27c99c5e0a4c63da7a6e1",
+ "bytes": 1513072,
  "engine_url": "https://raw.githubusercontent.com/OgNasty/degen-trading-desk-engine/main/TRADING%20TEMPLATE%20ENGINE.txt",
- "notes": "Initial public release of Degen Trading Desk. Paper mode by default; 24 adjustable rules; keyless data fallbacks with per-install timing jitter; automatic update checks with verified, rollback-safe updates."
+ "notes": "Adds Jupiter Lend for USDC (half of USDC earns lending interest; on by default, off with one command), an optional SOL staking bucket in JitoSOL (off by default; opt in with one command), full accounting of both in balances, rebalances and the dashboard, a single retry on Jupiter rate limits, a mirror safety lock, APR tags and up to 8-decimal amounts on the dashboard, and a new pie-center spider image."
 }

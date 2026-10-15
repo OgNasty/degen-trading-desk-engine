@@ -151,7 +151,7 @@
   header, .stats, .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:0 0 24px rgba(62,224,255,.08); }
   .flash { animation:hit .7s ease; }
   .flash-gold { animation:hitGold 1s ease-in-out 4; }
-  #w-pairs.flash-gold { animation:hitGold 1s ease-in-out 3; }  /* gold3 2026-10-14: closest-3 window = exactly 3 pulses */
+  #w-pairs.flash-gold { animation:hitGold 1s ease-in-out 3; }
   .flash-gold2 { animation:hitGold 1s ease-in-out 2; }
   .flash-green { animation:hitGreen 1s ease-in-out 3; }
   .flash-red { animation:hitRed 1s ease-in-out 3; }
@@ -170,6 +170,7 @@
   .stat b { display:block; font-size:46px; font-weight:700; margin-top:0; line-height:1; }
   .stats .stat .k.panel-title { margin-bottom:0; line-height:1.1; font-weight:700; }
   .asset b { display:block; font-size:18px; font-weight:700; margin-top:1px; }
+  .asset b .lend-rate { font-size:10px; font-weight:600; letter-spacing:.3px; color:var(--cyan); opacity:.85; margin-left:6px; white-space:nowrap; vertical-align:middle; }  /* lend1015 */
   .asset[data-asset] b { font-size:20px; }
   .k { color:var(--muted); font-size:10px; letter-spacing:.14em; display:flex; align-items:center; gap:6px; }
   .k.title, .k.panel-title { color:var(--gold); font-weight:700; }
@@ -187,7 +188,6 @@
   .asset { border:1px solid var(--line); border-radius:10px; padding:6px 8px; position:relative; overflow:hidden; }
   .asset::after { content:""; position:absolute; inset:auto 0 0 0; height:2px; background:var(--c,var(--cyan)); animation:scan 2.4s linear infinite; }
   .sav-line { display:flex; justify-content:space-between; margin-top:0; color:var(--muted); font-size:12px; gap:8px; line-height:1.15; }
-  /* savcolor: savings rows in their coin colors (dark: page SOL green / light goat brown; light theme: darker shades) */
   .sav-line.sav-sol { color:#3dff9a; }
   .sav-line.sav-goat { color:#c8925a; }
   body.light .sav-line.sav-sol { color:#0a7a48; }
@@ -291,7 +291,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .scan, .asset::after, .vol-asset::after, .spider b, .spider.dance b,
-    #pie .orbit, #pie #pieSpider,
+    #pie .orbit,
     svg#chart rect[fill="url(#hud)"], svg#chart rect[fill="url(#holo)"],
     .web, .crumb, .spark, .logo-slide, .logo-ghost {
       animation: none !important;
@@ -349,12 +349,15 @@ const CHART_H = isMobile ? 160 : 202;
 const SPARK_COUNT = isMobile ? 4 : 8;
 let flashCounter = 0;
 
-// Lock initial viewport height on mobile to reduce redraws
 if (isMobile) {
   document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
 }
 
 const ASSETS=["USD","SOL","BTC","ETH"];
+// dec8 2026-10-15: token amounts under the balance cards show at most 8 decimals (display only)
+function amt8(v){const n=Number(v); if(!Number.isFinite(n)) return String(v??""); return n.toFixed(8).replace(/\.?0+$/,"");}
+// lend1015/stake1015: rate earned on the whole card balance = APR x (lent or staked) / card total, shown as "x.xx% APR"
+function lendTag(l,tot,what){ if(!l||!(l.apr>0)||!(l.lent>0)||!(tot>0)) return ""; const eff=l.apr*Math.min(l.lent,tot)/tot; return `<span class="lend-rate" title="${what}: ${l.apr.toFixed(2)}% on the part ${what==="Jupiter Lend"?"lent":"staked"}">${eff.toFixed(2)}% APR</span>`;}
 const ASSET_LABELS={USD:"US DOLLAR",SOL:"SOLANA",BTC:"BITCOIN",ETH:"ETHEREUM"};
 const FLY=["USD","SOL","BTC","ETH","JitoSOL","Greedy Goats"];
 const COLORS={USD:"#3ee0ff",SOL:"#3dff9a",BTC:"#ffc14d",ETH:"#9b7bff",JitoSOL:"#8dff6b","Greedy Goats":"#A0522D"};
@@ -382,8 +385,8 @@ const RPCS=["https://solana-rpc.publicnode.com","https://rpc.ankr.com/solana"];
 const TOKEN_PROGRAMS=["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"];
 const WEB_MS=812;
 const GOLD_GAP=3000;
-const FLASH_MS=4000;  // flash1012: gold = 4 pulses x 1s
-const COLOR_FLASH_MS=3000;  // color3: green/red trade flash = 3 blinks x 1s
+const FLASH_MS=4000;
+const COLOR_FLASH_MS=3000;
 const LOGO_COUNT=6;
 const LOGO_GAP=1000;
 const LOGO_TRAVEL=1000;
@@ -496,7 +499,7 @@ function parseDesk(d){
     const it=(c.i||[]).map(x=>({rev:!!x[0],from:sym(x[1]),to:sym(x[2]),a:x[3],b:x[4],c:x.length>5?x[5]:null}));
     it.forEach(rememberPair);
     const sv=c.sv||[];
-    chk={time:c.t||"",bt:c.bt||c.t||"",status:c.s||"",addr:c.a||"",bal,total:c.T??null,unrealPct:c.u??null,funded:c.f??null,savings:{jito:sv[0]??null,jitoUsd:sv[1]??null,goat:sv[2]??null,goatUsd:sv[3]??null},bias:c.bi?{least:sym(c.bi[0]),most:sym(c.bi[1])}:null,items:it,itemsTime:c.it||"",itemsHeld:!!c.ih,next:c.nx||""};
+    chk={time:c.t||"",bt:c.bt||c.t||"",status:c.s||"",addr:c.a||"",bal,total:c.T??null,unrealPct:c.u??null,funded:c.f??null,savings:{jito:sv[0]??null,jitoUsd:sv[1]??null,goat:sv[2]??null,goatUsd:sv[3]??null},bias:c.bi?{least:sym(c.bi[0]),most:sym(c.bi[1])}:null,items:it,itemsTime:c.it||"",itemsHeld:!!c.ih,next:c.nx||"",lend:Array.isArray(c.ln)?{apr:Number(c.ln[0]),lent:Number(c.ln[1])}:null,stake:Array.isArray(c.js)?{apr:Number(c.js[0]),lent:Number(c.js[1])}:null};
   }
   history=(d.h||[]).map(usd=>({usd}));
   const vol={}; for(const k of Object.keys(d.v||{})){ const s=sym(k); if(!vol[s]) vol[s]={sold:0,bought:0}; vol[s].sold+=d.v[k][0]; vol[s].bought+=d.v[k][1]; }
@@ -627,19 +630,6 @@ function mixOf(bal){
   parts.forEach(p=>{ usd[p.s]=p.usd; pct[p.s]=total?p.usd/total:0; });
   return {usd,pct,total};
 }
-function pieEyeColor(){
-  const eye=document.getElementById("spider");
-  if(eye&&eye.classList.contains("above")) return "#3dff9a";
-  if(eye&&eye.classList.contains("below")) return "#ff6b81";
-  return "#f4ffff";
-}
-function syncPieEyes(){
-  const c=pieEyeColor();
-  document.querySelectorAll("#pie .pie-eye").forEach(el=>{
-    el.setAttribute("fill", c);
-    el.setAttribute("stroke", c);
-  });
-}
 // piesav1014: pie slices. Held JitoSOL (JitoSOL price) rides in the SOL slice;
 // Greedy Goats gets its own brown slice when over $0.004. Cards/volume unchanged.
 function pieParts(bal){
@@ -649,45 +639,7 @@ function pieParts(bal){
     .concat([{s:"Greedy Goats", usd:g}]).filter(p=>p.usd>0.004);
 }
 function pieSpider(bal){
-  const eye=pieEyeColor();
-  const leg=(d,from,to,delay)=>`<g><path d="${d}" fill="none" stroke="url(#legHue)" stroke-width="1.7" stroke-linecap="round"/><animateTransform attributeName="transform" type="rotate" values="${from};${to};${from}" dur="1.05s" begin="${delay}" repeatCount="indefinite" additive="sum"/></g>`;
-  const parts=pieParts(bal);
-  const total=parts.reduce((s,p)=>s+p.usd,0);
-  const slices=total?parts:ASSETS.map(s=>({s, usd:1}));
-  const sum=slices.reduce((s,p)=>s+p.usd,0);
-  let a0=-Math.PI/2, wedges="";
-  slices.forEach(p=>{
-    const a1=a0+p.usd/sum*Math.PI*2, large=a1-a0>Math.PI?1:0;
-    const x0=Math.cos(a0)*14, y0=4.2+Math.sin(a0)*14, x1=Math.cos(a1)*14, y1=4.2+Math.sin(a1)*14;
-    wedges+=`<path d="M0 4.2 L${x0.toFixed(2)} ${y0.toFixed(2)} A14 14 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${COLORS[p.s]||"#8d86a8"}"/>`;
-    a0=a1;
-  });
-  return `<g id="pieSpider" filter="url(#pieglow)" transform="translate(80 81) scale(1.15)">
-    <defs>
-      <linearGradient id="legHue" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9b7bff"/><stop offset="40%" stop-color="#3ee0ff"/><stop offset="72%" stop-color="#f4ffff"/><stop offset="100%" stop-color="#3dff9a"/></linearGradient>
-      <clipPath id="swirlClip"><ellipse cx="0" cy="4.2" rx="7.4" ry="5.6"/></clipPath>
-    </defs>
-    ${isMobile ? '' : '<animateTransform attributeName="transform" type="translate" values="0 -0.7;0 0.9;0 -0.7" dur="1.8s" repeatCount="indefinite" additive="sum"/>'}
-    ${leg("M-4 -1 Q-16 -12 -22 -8 Q-18 -2 -8 1","-8","7","0s")}
-    ${leg("M-5 1 Q-18 2 -24 8 Q-16 8 -8 3","6","-8",".12s")}
-    ${leg("M-4 4 Q-14 12 -18 18 Q-10 12 -6 6","8","-6",".05s")}
-    ${leg("M-2 7 Q-8 16 -6 22 Q-2 16 -1 9","-6","8",".18s")}
-    ${leg("M4 -1 Q16 -12 22 -8 Q18 -2 8 1","8","-7",".08s")}
-    ${leg("M5 1 Q18 2 24 8 Q16 8 8 3","-6","8",".16s")}
-    ${leg("M4 4 Q14 12 18 18 Q10 12 6 6","-8","6",".02s")}
-    ${leg("M2 7 Q8 16 6 22 Q2 16 1 9","6","-8",".14s")}
-    <g clip-path="url(#swirlClip)">
-      <g>
-        ${isMobile ? '' : '<animateTransform attributeName="transform" type="rotate" from="0 0 4.2" to="360 0 4.2" dur="1.6s" repeatCount="indefinite"/>'}
-        ${wedges}
-      </g>
-    </g>
-    <ellipse cx="0" cy="4.2" rx="7.4" ry="5.6" fill="none" stroke="#b4f0ff" stroke-width=".55"/>
-    <ellipse cx="0" cy="-3.4" rx="6.4" ry="5.1" fill="#123044" stroke="#3ee0ff" stroke-width=".7"/>
-    <ellipse cx="0" cy="-4.1" rx="5.1" ry="3.8" fill="#0c2434"/>
-    <circle class="pie-eye" cx="-2.3" cy="-4.6" r="1.35" fill="${eye}" stroke="${eye}" stroke-width=".3"/>
-    <circle class="pie-eye" cx="2.3" cy="-4.6" r="1.35" fill="${eye}" stroke="${eye}" stroke-width=".3"/>
-  </g>`;
+  return `<image id="pieSpider" href="piespider.png" x="42" y="42" width="76" height="76" preserveAspectRatio="xMidYMid meet" />`;
 }
 function drawPie(bal){
   const svg=document.getElementById("pie"), legend=document.getElementById("pieLegend");
@@ -698,16 +650,15 @@ function drawPie(bal){
     <filter id="pieglow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <radialGradient id="core" cx="50%" cy="42%" r="62%"><stop offset="0%" stop-color="#1b4d66"/><stop offset="58%" stop-color="#0a121c"/><stop offset="100%" stop-color="#05070e"/></radialGradient>
     <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3ee0ff" stop-opacity="0"/><stop offset="55%" stop-color="#3ee0ff" stop-opacity=".22"/><stop offset="100%" stop-color="#9b7bff" stop-opacity="0"/></linearGradient>
-    <radialGradient id="spiderBody" cx="40%" cy="30%" r="70%"><stop offset="0%" stop-color="#f4f8fb"/><stop offset="45%" stop-color="#c5d2dc"/><stop offset="100%" stop-color="#5d6b78"/></radialGradient>
   </defs>
+  ${pieSpider(bal)}
   <circle cx="80" cy="80" r="77" fill="none" stroke="rgba(62,224,255,.22)" stroke-width="1"/>
   <g>${isMobile ? '' : '<animateTransform attributeName="transform" type="rotate" from="0 80 80" to="360 80 80" dur="16s" repeatCount="indefinite"/>'}<circle class="orbit orbit-outer" cx="80" cy="80" r="74.5" fill="none" stroke="rgba(62,224,255,.7)" stroke-width="1.3" stroke-dasharray="3 8" filter="url(#pieglow)"/></g>
   <g>${isMobile ? '' : '<animateTransform attributeName="transform" type="rotate" from="360 80 80" to="0 80 80" dur="24s" repeatCount="indefinite"/>'}<circle class="orbit orbit-mid" cx="80" cy="80" r="70" fill="none" stroke="rgba(155,123,255,.55)" stroke-width="2.4" stroke-dasharray="16 12" filter="url(#pieglow)"/></g>`;
   if(!total){
-    svg.innerHTML=shell+`<circle cx="80" cy="80" r="40" fill="url(#core)" stroke="rgba(62,224,255,.45)" stroke-width="1"/>${pieSpider(bal)}`;
+    svg.innerHTML=shell+`<circle cx="80" cy="80" r="40" fill="none" stroke="rgba(62,224,255,.45)" stroke-width="1"/>`;
     legend.innerHTML="";
     applyIdleRings();
-    syncPieEyes();
     return;
   }
   const gap=parts.length>1?0.05:0;
@@ -727,17 +678,14 @@ function drawPie(bal){
     a0=a1;
   });
   svg.innerHTML=shell+`<g>${paths}</g>
-  <g><animateTransform attributeName="transform" type="rotate" from="0 80 80" to="360 80 80" dur="5.5s" repeatCount="indefinite"/><path d="M80 80 L80 8 A72 72 0 0 1 118 28 Z" fill="url(#sweep)"/></g>
-  <circle cx="80" cy="80" r="42" fill="url(#core)" stroke="rgba(62,224,255,.7)" stroke-width="1.2" filter="url(#pieglow)"/>
+  <circle cx="80" cy="80" r="42" fill="none" stroke="rgba(62,224,255,.7)" stroke-width="1.2" filter="url(#pieglow)"/>
   <g>${isMobile ? '' : '<animateTransform attributeName="transform" type="rotate" from="0 80 80" to="-360 80 80" dur="9s" repeatCount="indefinite"/>'}<circle class="orbit" cx="80" cy="80" r="34" fill="none" stroke="rgba(61,255,154,.4)" stroke-width=".7" stroke-dasharray="2 4"/></g>
-  ${marks}
-  ${pieSpider(bal)}`;
+  ${marks}`;
   applyIdleRings();
   legend.innerHTML=parts.map(p=>{
     const c=COLORS[p.s]||"#8d86a8";
     return `<span style="color:${c}"><i data-base="${c}" style="background:${c};color:${c}"></i>${esc(p.s)} ${Math.round(p.usd/total*100)}%</span>`;
   }).join("");
-  syncPieEyes();
 }
 function paint(){
   if(ritual||tradeJob||tradeJobs.length){ deferredPaint=true; return; }
@@ -756,10 +704,9 @@ function paint(){
   const eye=document.getElementById("spider");
   eye.classList.toggle("above", pnl!=null&&pnl>0);
   eye.classList.toggle("below", pnl!=null&&pnl<0);
-  syncPieEyes();
   const sv=savingsView(c);
   const pctTxt=c.unrealPct==null?"—":(c.unrealPct>0?"+":"")+c.unrealPct+"%";
-  const statsHtml=`<div class="stat"><div class="k panel-title">TOTAL BALANCE</div><b id="totalBal">${c.total==null?"—":money(c.total)}</b><div class="sub ${pnl!=null&&pnl<0?"down":"up"}">${pnl==null?"":(pnl>=0?"+":"")+money(pnl)+" · "+pctTxt+" vs "+money(c.funded)}</div></div>`+ASSETS.map(s=>{const b=bal[s]; let label=ASSET_LABELS[s]||s; if(s==="USD"||s==="SOL"||s==="BTC"||s==="ETH") label=" "+label; return `<div class="asset" data-asset="${esc(s)}" style="--c:${COLORS[s]}"><div class="k"><span class="asset-label">${logo(s)}<span>${esc(label)}</span></span></div><b>${b?money(b.usd):"—"}</b><div class="sub">${b?esc(b.amount):"—"}</div></div>`;}).join("")+(savOn()?`<div class="asset"><div class="k title">SAVINGS</div><b>${sv.savTotal==null?"—":money(sv.savTotal)}</b><div class="sav-line sav-sol"><span>STAKED SOLANA</span><span>${sv.jAmt.toFixed(4)+" · "+(sv.jUsd==null?"—":money(sv.jUsd))}</span></div>${memeOn?`<div class="sav-line sav-goat"><span>GREEDY GOATS</span><span>${sv.gAmt.toLocaleString()+" · "+(sv.gUsd==null?"—":money(sv.gUsd))}</span></div>`:""}</div>`:"");
+  const statsHtml=`<div class="stat"><div class="k panel-title">TOTAL BALANCE</div><b id="totalBal">${c.total==null?"—":money(c.total)}</b><div class="sub ${pnl!=null&&pnl<0?"down":"up"}">${pnl==null?"":(pnl>=0?"+":"")+money(pnl)+" · "+pctTxt+" vs "+money(c.funded)}</div></div>`+ASSETS.map(s=>{const b=bal[s]; let label=ASSET_LABELS[s]||s; if(s==="USD"||s==="SOL"||s==="BTC"||s==="ETH") label=" "+label; return `<div class="asset" data-asset="${esc(s)}" style="--c:${COLORS[s]}"><div class="k"><span class="asset-label">${logo(s)}<span>${esc(label)}</span></span></div><b>${b?money(b.usd):"—"}${s==="USD"&&b?lendTag(c.lend,Number(b.usd)||0,"Jupiter Lend"):s==="SOL"&&b?lendTag(c.stake,Number(b.amount)||0,"JitoSOL"):""}</b><div class="sub">${b?esc(amt8(b.amount)):"—"}</div></div>`;}).join("")+(savOn()?`<div class="asset"><div class="k title">SAVINGS</div><b>${sv.savTotal==null?"—":money(sv.savTotal)}</b><div class="sav-line sav-sol"><span>STAKED SOLANA</span><span>${sv.jAmt.toFixed(4)+" · "+(sv.jUsd==null?"—":money(sv.jUsd))}</span></div>${memeOn?`<div class="sav-line sav-goat"><span>GREEDY GOATS</span><span>${sv.gAmt.toLocaleString()+" · "+(sv.gUsd==null?"—":money(sv.gUsd))}</span></div>`:""}</div>`:"");
   { const st=document.getElementById("stats"); if(st) st.classList.toggle("nosav",!savOn()); }
   const latest=rows.at(-1);
   const tradeKey=latest?[latest.time_pt,latest.sold_asset,latest.bought_asset,latest.sold_amount,latest.bought_amount].join("|"):"";
@@ -1132,7 +1079,6 @@ loadFiles(); quotes(); setInterval(loadFiles, FILE_INTERVAL); setInterval(quotes
 let lastWidth = window.innerWidth;
 function onResize(){
   const w = window.innerWidth;
-  // On mobile, ignore height-only changes (URL bar hide/show)
   if (w <= 900 && Math.abs(w - lastWidth) < 20) return;
   lastWidth = w;
   match();
@@ -1276,7 +1222,7 @@ function flashGold(el){
   el.classList.remove("flash-gold","flash-green","flash-red");
   void el.offsetWidth;
   el.classList.add("flash-gold");
-  const fms=el.id==="w-pairs"?3000:FLASH_MS;  // gold3: closest-3 window 3 x 1s
+  const fms=el.id==="w-pairs"?3000:FLASH_MS;
   const end=now+fms;
   flashUntil.set(el, end);
   setTimeout(()=>{
@@ -1286,7 +1232,7 @@ function flashGold(el){
     }
   }, fms+50);
 }
-const FLASH2_MS=2000;  // flash1012: non-trade balance update = exactly 2 gold pulses (1s each)
+const FLASH2_MS=2000;
 function flashGold2(el){
   if(!el) return;
   const now=performance.now();
@@ -1724,8 +1670,6 @@ function animateClosest(closestHtml, pairsKey){
     match();
   })();
 }
-// statsdup1012: the pie ritual already applied the latest balances; drop stats jobs queued before now
-// (only those; later noteUpdate("stats",...) calls still run normally).
 function dropQueuedStats(){
   for(let i=queue.length-1;i>=0;i--){ if(queue[i] && queue[i].id==="stats") queue.splice(i,1); }
   delete pendingSig["stats"];
@@ -1747,7 +1691,7 @@ async function updatePie(bal, key, opts){
     drawPie(bal);
     seen.pie=key||seen.pie;
     piePct=next.pct; pieUsd=next.usd;
-    if(skipStream){ drawPie(bal); syncPieEyes(); }
+    if(skipStream){ drawPie(bal); }
     return;
   }
 
@@ -1774,7 +1718,6 @@ async function updatePie(bal, key, opts){
   try { await Promise.all([stream.done, dance]); } finally { pieTinting=false; }
 
   drawPie(bal);
-  syncPieEyes();
 }
 function armCurve(x1,y1,x2,y2,k){
   const mx=(x1+x2)/2, my=(y1+y2)/2-Math.min(90, Math.hypot(x2-x1,y2-y1)*0.28);

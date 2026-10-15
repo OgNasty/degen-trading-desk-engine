@@ -52,6 +52,7 @@
   "features": {
     "savings_mode": false,
     "memecoin_mode": false,
+    "interest_mode": false,
     "memecoin": {
       "symbol": "GreedyGoats",
       "name": "Greedy Goats",
@@ -59,7 +60,7 @@
       "decimals": 6,
       "token_program": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
     },
-    "_help": "Asked once at setup (one multi-select). savings_mode: each time the wallet gains $10, buy $4 of JitoSOL (staked SOL) and keep it out of trading. memecoin_mode: each $10 gain buys $1 of Greedy Goats (memecoin), held for fun. Apply with apply_features.py."
+    "_help": "Asked once at setup (one multi-select). savings_mode: each time the wallet gains $10, buy $4 of JitoSOL (staked SOL) and keep it out of trading. memecoin_mode: each $10 gain buys $1 of Greedy Goats (memecoin), held for fun. interest_mode: half the USDC earns Jupiter Lend interest and half the trading SOL is held as JitoSOL for staking rewards; pulled back automatically when a trade needs it. Apply with apply_features.py."
   },
   "funding_suggestion_usd": 50,
   "checkin": {

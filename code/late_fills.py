@@ -26,6 +26,7 @@ MINTS = {
     "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn": "JitoSOL",
     "GGiveYrqhfJc5pgBnjuY3NP5cW3ni1nFHeJXYZGFappF": "GreedyGoats",
 }
+JL_USDC = "9BEcn9aPEmhSPbPQeFGjidRiEKki46fVQDyPpSQXPA2D"  # lend1015: Jupiter Lend jlUSDC
 SOL_FEE_MAX = 0.003  # SOL change at or below this (after fee/rent are taken out) is tip dust, not a swap leg
 
 
@@ -83,6 +84,8 @@ def deltas(tx, wallet):
         ch["SOL"] = (meta["postBalances"][i] - meta["preBalances"][i]) / 1e9
     pre = {b["accountIndex"]: b for b in meta.get("preTokenBalances") or [] if b.get("owner") == wallet}
     post = {b["accountIndex"]: b for b in meta.get("postTokenBalances") or [] if b.get("owner") == wallet}
+    if any(b.get("mint") == JL_USDC for b in list(pre.values()) + list(post.values())):
+        return {}, bool(keys) and keys[0] == wallet  # lend1015: Jupiter Lend deposit/withdraw, not a swap
     if "SOL" in ch:
         # rent1014: record the swap amount only, like normal buys. Add back the network fee the wallet
         # paid and the rent moved into (or back out of) the wallet's own token accounts.
@@ -142,6 +145,11 @@ def scan(wallet, rpc, limit=15, state_path=STATE, trades_path=TRADES, append=Tru
         json.dump(st, open(state_path, "w", encoding="utf-8"))
         return []
     logged = _logged_sigs(trades_path)
+    try:  # stake1015: JitoSOL bucket swaps are not trades
+        with open(os.path.join(_DH.HOME_STR, "sol-stake-state.json"), encoding="utf-8") as _f:
+            logged |= set(json.load(_f).get("sigs") or [])
+    except Exception:
+        pass
     found = []
     for s in reversed(sigs):
         sig = s.get("signature")

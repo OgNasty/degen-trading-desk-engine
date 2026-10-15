@@ -344,6 +344,28 @@ def pause_mode_uncertain(cfg, reason, mode):
     print(f"MODE_PAUSED {mode} {reason}", flush=True)
 
 
+def _lend_snap(watch):
+    """lend1015: remember the jlUSDC share value at each deposit-watch snapshot."""
+    try:
+        import degen_lend as _LEND
+        sv = _LEND.snapshot_sv()
+        if sv:
+            watch["lend_sv"] = sv
+        else:
+            watch.pop("lend_sv", None)
+    except Exception:
+        pass
+    try:  # stake1015
+        import sol_stake as _STK
+        r = _STK.snapshot_rate()
+        if r:
+            watch["jito_rate"] = r
+        else:
+            watch.pop("jito_rate", None)
+    except Exception:
+        pass
+
+
 def _detect_flows(cb, balances, prices, aux, log_path):
     watch = cb.get("deposit_watch")
     if not isinstance(watch, dict):
@@ -366,6 +388,7 @@ def _detect_flows(cb, balances, prices, aux, log_path):
     rent_d = (rent_now - float(rent_prev)) if (rent_now is not None and rent_prev is not None) else 0.0
     if not isinstance(snap, dict) or any(name not in snap for name in EDGE_INVENTORY):
         watch["balances"] = curr
+        _lend_snap(watch)
         watch["log_lines"] = n_now
         if aux_now:
             watch["aux_balances"] = aux_now
@@ -377,6 +400,18 @@ def _detect_flows(cb, balances, prices, aux, log_path):
     if n0 is None or int(n0) > n_now:
         n0 = n_now  # first run with the new anchor: treat log as already applied
     expected, traded = logged_flows_since(n0, log_path)
+    try:  # lend1015: Jupiter Lend interest since the snapshot is expected USDC, not a deposit
+        import degen_lend as _LEND
+        _acc = _LEND.accrual_usdc(watch)
+        if _acc > 0:
+            expected["USDC"] = expected.get("USDC", 0.0) + _acc
+    except Exception:
+        pass
+    try:  # stake1015: JitoSOL bucket value change (rate) since the snapshot is expected SOL
+        import sol_stake as _STK
+        expected["SOL"] = expected.get("SOL", 0.0) + _STK.accrual_sol(watch)
+    except Exception:
+        pass
     # own non-book buys (JitoSOL / Goats) seen in the wallet
     aux_prev = watch.get("aux_balances") or {}
     own_aux_usd = 0.0
@@ -479,6 +514,7 @@ def _detect_flows(cb, balances, prices, aux, log_path):
         if rent_now is not None:
             watch["rent_sol"] = rent_now
         watch["balances"] = curr
+        _lend_snap(watch)
         watch["log_lines"] = n_now
         if aux_now:
             watch["aux_balances"] = aux_now

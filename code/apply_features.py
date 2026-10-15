@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Copy config.json "features" (savings_mode / memecoin_mode, chosen once at setup) into cost-basis.json.
+"""Copy config.json "features" (savings_mode / memecoin_mode / interest_mode, chosen once at setup) into cost-basis.json.
 Template 2026-10-13. Both default off. Memecoin is hard-defaulted to Greedy Goats; the owner may change the coin
 later with the --meme-* flags.
-Usage: python apply_features.py [--savings on|off] [--memecoin on|off] [--meme-mint MINT --meme-symbol SYM
+Usage: python apply_features.py [--savings on|off] [--memecoin on|off] [--interest on|off] [--meme-mint MINT --meme-symbol SYM
        --meme-decimals 6 --meme-token-program PROGRAM]   (flags also update config.json)"""
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--savings", choices=["on", "off"])
     ap.add_argument("--memecoin", choices=["on", "off"])
+    ap.add_argument("--interest", choices=["on", "off"])
     ap.add_argument("--meme-mint"); ap.add_argument("--meme-symbol"); ap.add_argument("--meme-name")
     ap.add_argument("--meme-decimals", type=int); ap.add_argument("--meme-token-program")
     a = ap.parse_args(argv)
@@ -31,6 +32,7 @@ def main(argv=None) -> int:
             m[k] = v
     if a.savings: f["savings_mode"] = a.savings == "on"
     if a.memecoin: f["memecoin_mode"] = a.memecoin == "on"
+    if a.interest: f["interest_mode"] = a.interest == "on"
     for k, v in (("mint", a.meme_mint), ("symbol", a.meme_symbol), ("name", a.meme_name),
                  ("decimals", a.meme_decimals), ("token_program", a.meme_token_program)):
         if v is not None:
@@ -40,6 +42,7 @@ def main(argv=None) -> int:
     cbp = _DH.HOME / "cost-basis.json"
     cb = json.loads(cbp.read_text(encoding="utf-8"))
     cb.setdefault("savings_mode", {})["enabled"] = bool(f.get("savings_mode"))
+    cb.setdefault("interest_mode", {})["enabled"] = bool(f.get("interest_mode"))
     mm = cb.setdefault("memecoin_mode", {})
     want_meme = bool(f.get("memecoin_mode"))
     if want_meme and not m.get("mint"):
@@ -51,7 +54,7 @@ def main(argv=None) -> int:
     mm["enabled"] = want_meme
     shutil.copy2(cbp, cbp.with_name(f"cost-basis.json.bak-features-{datetime.now():%Y%m%d-%H%M%S}"))
     cbp.write_text(json.dumps(cb, indent=2), encoding="utf-8")
-    print(json.dumps({"savings_mode": cb["savings_mode"]["enabled"], "memecoin_mode": mm["enabled"], "memecoin": mm.get("symbol", "")}))
+    print(json.dumps({"savings_mode": cb["savings_mode"]["enabled"], "interest_mode": cb["interest_mode"]["enabled"], "memecoin_mode": mm["enabled"], "memecoin": mm.get("symbol", "")}))
     return 0
 
 

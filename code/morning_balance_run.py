@@ -77,6 +77,12 @@ def get_balances(addr):
             bals[want[mint]] = float(info["tokenAmount"]["uiAmount"] or 0)
     for k in ("USDC", "cbBTC", "WETH"):
         bals.setdefault(k, 0.0)
+    try:  # lend1015: lent USDC (jlUSDC x share value) is USDC the bot owns
+        import degen_lend as _LEND
+        bals["USDC"] = float(bals.get("USDC") or 0) + _LEND.lent_usdc_from_tok(tok)
+    except Exception as _le:
+        print(f"LEND_READ_ERR {type(_le).__name__}", flush=True)
+        raise
     # held outside book (Tokenkeg + Token-2022 for Greedy if needed)
     held = {"JitoSOL": 0.0, "GreedyGoats": 0.0}
     jito = "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn"
@@ -109,6 +115,15 @@ def get_balances(addr):
                 held["JitoSOL"] = amt
     except Exception:
         pass
+    try:  # stake1015: the separate JitoSOL bucket is SOL (x JitoSOL->SOL), never savings JitoSOL
+        import sol_stake as _STK
+        _bsol, _bq = _STK.bucket_sol_for_read(_STK.jitosol_in_tok(tok))
+        if _bq > 0:
+            bals["SOL"] = float(bals.get("SOL") or 0) + _bsol
+            held["JitoSOL"] = max(0.0, float(held.get("JitoSOL") or 0) - _bq)
+    except Exception as _se:
+        print(f"STAKE_READ_ERR {type(_se).__name__}", flush=True)
+        raise
     return bals, held
 
 

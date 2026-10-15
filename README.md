@@ -2,7 +2,7 @@
 
 Engine code behind **Degen Trading Desk**, a rules-based crypto trading bot for Solana. It trades a small wallet between SOL, USDC, Bitcoin (cbBTC) and Ether (WETH) and publishes a live dashboard.
 
-**Version 1.0.0**
+**Version 1.1.0**
 
 ## What's here
 

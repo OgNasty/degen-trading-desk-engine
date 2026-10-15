@@ -152,7 +152,7 @@ def append_log(text: str) -> Path:
 
 _FULL_LOG_MARKERS = (
     "TRADE_FAIL", "NOTIFY_USER", "EXEC_ERR", "EXEC ", "Traceback", "HARD_BLOCKER",
-    "MULTI_FILL_DONE", "STOP_HIT", "DAY_LOSS_STOP", "SEND", "_ERR", "LATE_FILL",
+    "MULTI_FILL_DONE", "STOP_HIT", "DAY_LOSS_STOP", "SEND", "_ERR", "LATE_FILL", "LEND", "STAKE",
 )
 
 

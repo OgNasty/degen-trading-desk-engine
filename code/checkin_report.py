@@ -50,6 +50,13 @@ def main():
         import seed_prices as sp
         A = sp.assets(); px = sp.live_usd_prices(A); b = sp.balances(A)
         now_usd = round(sum(b[s] * px[s] for s in b), 2)
+        try:  # v1.1.0 interest mode: lent USDC and the JitoSOL bucket are still the owner's money
+            import degen_lend as _L, sol_stake as _S
+            _ls, _ss = _L.load_state(), _S.load_state()
+            now_usd = round(now_usd + float(_ls.get("lent_usdc") or 0) * float(px.get("USDC") or 1)
+                            + _S.bucket_qty(_ss) * float(_ss.get("rate") or 0) * float(px.get("SOL") or 0), 2)
+        except Exception:
+            pass
     except Exception:
         pass
     out = {"window": "last 24h", "checks": checks, "skips": skips, "would_be_fills": paper,
@@ -58,6 +65,14 @@ def main():
            "paper_pnl_pct": (round((now_usd - funded) / funded * 100, 2) if now_usd is not None and funded else None),
            "paper_mode": _DH.paper_trading(), "paused": _DH.trading_paused(),
            "dashboard": (_DH.config().get("dashboard") or {}).get("public_url")}
+    try:  # v1.1.0: interest mode + JitoSOL swap cost vs staking gain (report only)
+        import interest_mode as _IM, sol_stake as _S
+        out["interest_mode"] = bool(_IM.flag())
+        _tk = _S.tracker()
+        if _tk:
+            out["jitosol_tracker"] = _tk
+    except Exception:
+        pass
     print(json.dumps(out, indent=2))
 
 

@@ -88,6 +88,7 @@ def clear_jupiter_budget_bump():
 
 def curl_json(url, timeout=25, retries=4):
     last = None
+    _jup429 = 0
     for i in range(retries):
         with _JK.curl_args(url) as _kh:  # jupkey1012: x-api-key for api.jup.ag (header via temp file)
             r = subprocess.run(
@@ -105,6 +106,10 @@ def curl_json(url, timeout=25, retries=4):
             continue  # keyless retry right away
         if code == "429" or "Too many requests" in body or "Rate limit" in body:
             last = "rate_limit_429"
+            if "jup.ag" in url:  # jup429once1015: Jupiter 429 -> one retry per quote, then give up
+                _jup429 += 1
+                if _jup429 > 1:
+                    break
             time.sleep(4.0 * (i + 1))
             continue
         if code != "200":
@@ -686,10 +691,23 @@ def _cu_price_ix(micro):
     return Instruction(_pk(COMPUTE_BUDGET), data, [])
 
 
+def _lend_ensure(input_mint, raw_amount):
+    """lend1015: before a swap that spends USDC is built, withdraw from Jupiter Lend if the
+    liquid USDC is short (no-op unless this process read a lent position). Never raises."""
+    try:
+        if input_mint and raw_amount:
+            import degen_lend
+            degen_lend.ensure_liquid(input_mint, int(raw_amount))
+            import sol_stake  # stake1015: SOL short -> swap bucket JitoSOL back first
+            sol_stake.ensure_liquid(input_mint, int(raw_amount))
+    except Exception as _e:
+        print(f"LEND_ERR build_hook {type(_e).__name__}", flush=True)
+
 def build_jupiter_manual_tx(payload):
     """Assemble the /build instructions. Does not sign or send."""
     if not isinstance(payload, dict) or not payload.get("swapInstruction"):
         return None, "jupiter_manual_no_swap_ix"
+    _lend_ensure(payload.get("inputMint"), payload.get("inAmount"))
     if _SOLDERS_ERR is not None or MessageV0 is None:
         return None, f"solders_import:{_SOLDERS_ERR}"
     bh_meta = payload.get("blockhashWithMetadata") or {}
@@ -846,6 +864,7 @@ def build_orca_tx(payload):
     return build_jupiter_manual_tx(payload)
 
 def build_raydium_tx(swap_response, sell, buy):
+    _lend_ensure(MINTS.get(sell), ((swap_response or {}).get("data") or {}).get("inputAmount"))
     body = {
         "wallet": ADDR,
         "swapResponse": swap_response,

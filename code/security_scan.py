@@ -14,10 +14,11 @@ engine's own lines are trusted too, and a short plain summary of what changed is
 import base64, hashlib, json, re, sys
 from pathlib import Path
 
-# ---- trusted list: built from engine 1.0.0 ----
+# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 ----
 TRUSTED_DOMAINS = {
     "alternative.me", "api.alternative.me", "api.binance.com", "api.cloudflare.com", "api.coingecko.com",
     "api.exchange.coinbase.com", "api.geckoterminal.com", "api.jup.ag", "api.kraken.com",
+    "jup.ag", "lite-api.jup.ag", "jito.network", "kobe.mainnet.jito.network",  # 1.1: Jupiter Lend, JitoSOL stats
     "api.mainnet-beta.solana.com", "cloudflareinsights.com", "dash.cloudflare.com", "dashboard.alchemy.com",
     "dashboard.helius.dev", "mainnet.helius-rpc.com",
     "portal.jup.ag", "raw.githubusercontent.com", "rpc.ankr.com",
@@ -31,10 +32,12 @@ TRUSTED_ADDRESSES = {
     "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs", "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
     "ComputeBudget111111111111111111111111111111",
     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "GGiveYrqhfJc5pgBnjuY3NP5cW3ni1nFHeJXYZGFappF",
+    "9BEcn9aPEmhSPbPQeFGjidRiEKki46fVQDyPpSQXPA2D",  # 1.1: Jupiter Lend jlUSDC token mint
     "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "So11111111111111111111111111111111111111112",
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
 }
+ENGINE_FOR_BASELINE = "1.1.0"
 BASELINE_FILE = "security-baseline.json"  # hashes of the risky-looking lines that shipped in 1.0.0
 
 CHECKS = [  # (category, plain label, regex)
@@ -269,7 +272,7 @@ def build_baseline(root: str, bundle: str | None = None) -> int:
     if bundle:  # the extractor ships inside the bundle only
         ex = parse_bundle(Path(bundle).read_bytes()).get("__extractor__.py", b"").decode("utf-8", "replace")
         lines.update(_norm("__extractor__.py", ln) for _, _, _, ln in risky_lines("__extractor__.py", ex))
-    (r / "code" / BASELINE_FILE).write_text(json.dumps({"engine": "1.0.0", "lines": sorted(lines)}, indent=0) + "\n", encoding="utf-8")
+    (r / "code" / BASELINE_FILE).write_text(json.dumps({"engine": ENGINE_FOR_BASELINE, "lines": sorted(lines)}, indent=0) + "\n", encoding="utf-8")
     return len(lines)
 
 

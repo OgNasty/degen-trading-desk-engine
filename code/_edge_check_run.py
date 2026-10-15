@@ -54,6 +54,8 @@ its USD price at the previous check and its USD price 24 hours ago. The
 memecoin impact-cap exemption does not waive it. Friday RSI, the Friday band
 fallback, and the morning underweight trade are other paths and are not checked here.
 """
+import mirror_guard as _MG  # mirrorguard1015: box mirror w/o fallback-active.json -> exit now
+_MG.check("_edge_check_run")
 import tokens_book
 import degen_home as _DH  # portable base dir (pcmove 2026-10-10)
 open(_DH.HOME_STR + "/trades.jsonl", "a", encoding="utf-8", newline="").close()  # fresh install: start with an empty trade log
@@ -299,6 +301,7 @@ def priority_fee_sol(row, micro):
 
 def curl_json(url, timeout=25, retries=5):
     last = None
+    _jup429 = 0
     for i in range(retries):
         r = subprocess.run(
             ["curl", "-sS", "-w", "\n%{http_code}", "--max-time", str(timeout),
@@ -313,6 +316,10 @@ def curl_json(url, timeout=25, retries=5):
         code = code.strip()
         if code == "429" or "Too many requests" in body or "Rate limit" in body:
             last = "rate_limit_429"
+            if "jup.ag" in url:  # jup429once1015: Jupiter 429 -> one retry per quote, then give up
+                _jup429 += 1
+                if _jup429 > 1:
+                    break
             time.sleep(8.0 * (i + 1))
             continue
         if code != "200":
@@ -440,6 +447,12 @@ def get_balances(addr=None, commitment=None):
             bals[want[mint]] = float(info["tokenAmount"]["uiAmount"] or 0)
     for k in ("USDC","cbBTC","WETH"):
         bals.setdefault(k, 0.0)
+    try:  # lend1015: lent USDC (jlUSDC x share value) is USDC the bot owns
+        import degen_lend as _LEND
+        bals["USDC"] = float(bals.get("USDC") or 0) + _LEND.lent_usdc_from_tok(tok)
+    except Exception as _le:
+        print(f"LEND_READ_ERR {type(_le).__name__}", flush=True)
+        raise
     # Held savings (JitoSOL) / memecoin (Greedy Goats) wallet quantities for the
     # log only. Kept out of bals so no trading path sees them.
     try:
@@ -452,6 +465,16 @@ def get_balances(addr=None, commitment=None):
                 HELD_WALLET["_read"] = True
     except Exception as _he:
         print(f"HELD_READ_ERR jitosol {type(_he).__name__}", flush=True)
+    try:  # stake1015: the separate JitoSOL bucket is SOL (x JitoSOL->SOL), never savings JitoSOL
+        import sol_stake as _STK
+        _bsol, _bq = _STK.bucket_sol_for_read(_STK.jitosol_in_tok(tok))
+        if _bq > 0:
+            bals["SOL"] = float(bals.get("SOL") or 0) + _bsol
+            if HELD_WALLET.get("_read"):
+                HELD_WALLET["JitoSOL"] = max(0.0, float(HELD_WALLET.get("JitoSOL") or 0) - _bq)
+    except Exception as _se:
+        print(f"STAKE_READ_ERR {type(_se).__name__}", flush=True)
+        raise
     # Saved cbBTC (savings_mode.savings_cbbtc_held) is never trading inventory.
     # Every edge path sizes from this trading view; the saved amount rides in
     # bals["cbBTC_savings"] so wallet/latch totals still include it.
@@ -3940,6 +3963,28 @@ slim["fill"] = result.get("fill")
 slim["knife_hurdle_v1"] = result["knife_hurdle_v1"] = {"enabled": KH_CFG["enabled"], **KH_STATS}
 if KH_CFG["enabled"] and _DH.research_logging():  # template: hurdle stats print is study-only
     print("KNIFE_HURDLE " + json.dumps(KH_STATS), flush=True)
+try:  # lend1015: Jupiter Lend idle rule / switch-off withdraw, after all trades of this check
+    import degen_lend as _LEND
+    if solana_rpc.long_wait_used():
+        _lend_st = {"skipped": "unresolved send this check"}
+    else:
+        _lend_st = _LEND.tick(source="edge_check")
+    slim["lend"] = result["lend"] = _lend_st
+    if _lend_st.get("lent") is not None:
+        print("LEND " + json.dumps({k: _lend_st.get(k) for k in ("enabled", "liquid", "lent", "apr", "action", "sig", "err") if _lend_st.get(k) is not None}), flush=True)
+except Exception as _lend_err:
+    print(f"LEND_ERR edge_tick {type(_lend_err).__name__}", flush=True)
+try:  # stake1015: JitoSOL bucket idle rule / switch-off unstake, after all trades of this check
+    import sol_stake as _STK
+    if solana_rpc.long_wait_used():
+        _stk_st = {"skipped": "unresolved send this check"}
+    else:
+        _stk_st = _STK.tick(source="edge_check")
+    slim["stake"] = result["stake"] = _stk_st
+    if _stk_st.get("bucket_sol") is not None:
+        print("STAKE " + json.dumps({k: _stk_st.get(k) for k in ("enabled", "liquid_sol", "bucket_jitosol", "bucket_sol", "apy", "action", "sig", "err") if _stk_st.get(k) is not None}), flush=True)
+except Exception as _stk_err:
+    print(f"STAKE_ERR edge_tick {type(_stk_err).__name__}", flush=True)
 fade_trend.atomic_write_json(_DH.HOME_STR + "/last-check.eval.json", result)
 fade_trend.atomic_write_json(_DH.HOME_STR + "/last-check.json", slim)
 

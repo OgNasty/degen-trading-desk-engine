@@ -23,6 +23,20 @@ def fetch_confirmed(addr):
         info = v["account"]["data"]["parsed"]["info"]
         if info["mint"] in want:
             out[want[info["mint"]]] += float(info["tokenAmount"]["uiAmount"] or 0)
+    try:  # lend1015: lent USDC (jlUSDC x share value) is USDC the bot owns
+        import degen_lend as _LEND
+        out["USDC"] = float(out.get("USDC") or 0) + _LEND.lent_usdc_from_tok(tok)
+    except Exception as _le:
+        print(f"LEND_READ_ERR {type(_le).__name__}", flush=True)
+        raise
+    try:  # stake1015: the separate JitoSOL bucket is SOL (x JitoSOL->SOL), never savings JitoSOL
+        import sol_stake as _STK
+        _bsol, _bq = _STK.bucket_sol_for_read(_STK.jitosol_in_tok(tok))
+        if _bq > 0:
+            out["SOL"] = float(out.get("SOL") or 0) + _bsol
+    except Exception as _se:
+        print(f"STAKE_READ_ERR {type(_se).__name__}", flush=True)
+        raise
     return out
 
 
