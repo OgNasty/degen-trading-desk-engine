@@ -1,0 +1,11 @@
+# Phase 1 (hosted on the Grok Bot box). Install with: crontab box/crontab.example  (edit DEGEN_HOME first)
+# The 5-minute edge-check loop itself is the long-running runner (box/runner_ctl.sh start), revived on reboot.
+# Times are the box's local time zone; set TZ to the owner's zone.
+CRON_TZ=America/Phoenix
+DEGEN_HOME=/workspace/degen-bot
+@reboot      $DEGEN_HOME/box/runner_ctl.sh autostart >>$DEGEN_HOME/runner-logs/runner-ctl.log 2>&1
+*/5 * * * *  $DEGEN_HOME/box/autostart_hook.sh >/dev/null 2>&1
+# the lines below show the BASE times; at setup replace them with `python jitter_setup.py --crontab` (per-install jitter).
+59 6 * * *   cd $DEGEN_HOME && [ ! -e MIRROR_ONLY ] && .venv/bin/python morning_balance_run.py >>runner-logs/morning_balance_run.log 2>&1
+59 16 * * *  cd $DEGEN_HOME && [ ! -e MIRROR_ONLY ] && .venv/bin/python morning_balance_run.py >>runner-logs/morning_balance_run.log 2>&1
+1 21 * * 5   cd $DEGEN_HOME && [ ! -e MIRROR_ONLY ] && .venv/bin/python friday_rsi.py >>runner-logs/friday_rsi.log 2>&1

@@ -1,0 +1,9 @@
+{
+ "engine": "Degen Trading Desk",
+ "version": "1.0.0",
+ "released": "2026-10-14",
+ "sha256": "ab6a805fc0f6ec9370c97827d6f2fea9c02344dca06020ade49eabb096e885f7",
+ "bytes": 1086604,
+ "engine_url": "https://raw.githubusercontent.com/OgNasty/degen-trading-desk-engine/main/TRADING%20TEMPLATE%20ENGINE.txt",
+ "notes": "Initial public release of Degen Trading Desk. Paper mode by default; 24 adjustable rules; keyless data fallbacks with per-install timing jitter; automatic update checks with verified, rollback-safe updates."
+}

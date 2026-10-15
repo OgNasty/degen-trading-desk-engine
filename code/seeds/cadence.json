@@ -1,0 +1,11 @@
+{
+  "mode": "fixed_6",
+  "delay_min": 6,
+  "cron": "",
+  "CRON_TZ": "",
+  "result": "SKIP",
+  "random_min": 6,
+  "random_max": 6,
+  "delay_min_remaining_approx": 6,
+  "runner": "box_runner"
+}

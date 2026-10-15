@@ -1,0 +1,7 @@
+{
+  "morning_day_label": true,
+  "morning_day_file": "daily-balance-days.json",
+  "underweight_double": true,
+  "fees_vs_edge": "retired_2026-10-05_do_not_report",
+  "balance_status_every_sec": 55
+}

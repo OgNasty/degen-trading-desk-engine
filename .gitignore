@@ -1,0 +1,23 @@
+# Owner/runtime files: never commit
+.env
+config.json
+*.key
+*wallet*.json
+!code/seeds/*.json
+state/
+*.log
+trades*.json*
+cost-basis.json
+setup-state.json
+features.json
+engine-backups/
+*.bak
+*.bak-*
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.wrangler/
+.DS_Store
+Thumbs.db

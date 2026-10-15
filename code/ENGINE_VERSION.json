@@ -1,0 +1,6 @@
+{
+  "engine": "Degen Trading Desk",
+  "version": "1.0.0",
+  "released": "2026-10-14",
+  "notes": "Initial public release of Degen Trading Desk. Paper mode by default; 24 adjustable rules; keyless data fallbacks with per-install timing jitter; automatic update checks with verified, rollback-safe updates."
+}

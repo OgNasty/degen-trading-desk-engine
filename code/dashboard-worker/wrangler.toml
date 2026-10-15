@@ -1,0 +1,16 @@
+# Degen dashboard Worker (template). Deployed by ../dashboard_publish.py via the Cloudflare REST API
+# (wrangler is optional). The account id comes from CLOUDFLARE_ACCOUNT_ID in .env, not this file.
+name = "degen-dashboard"
+main = "src/index.js"
+compatibility_date = "2025-03-01"
+# Free hostname: https://degen-dashboard.<your-subdomain>.workers.dev
+workers_dev = true
+# Optional custom hostname on a domain you own in Cloudflare:
+# routes = [ { pattern = "dashboard.YOUR-DOMAIN.com/*", zone_name = "YOUR-DOMAIN.com" } ]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+not_found_handling = "none"

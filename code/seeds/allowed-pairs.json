@@ -1,0 +1,136 @@
+{
+  "assets": [
+    {
+      "symbol": "SOL",
+      "mint": "native",
+      "decimals": 9
+    },
+    {
+      "symbol": "USDC",
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "decimals": 6
+    },
+    {
+      "symbol": "cbBTC",
+      "mint": "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
+      "decimals": 8
+    },
+    {
+      "symbol": "WETH",
+      "mint": "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs",
+      "decimals": 8,
+      "name": "Wrapped Ether (Wormhole)"
+    }
+  ],
+  "undirected_pairs": [
+    "SOL-USDC",
+    "SOL-cbBTC",
+    "SOL-WETH",
+    "USDC-cbBTC",
+    "USDC-WETH",
+    "cbBTC-WETH"
+  ],
+  "directed_routes": [
+    "SOL\u2192USDC",
+    "USDC\u2192SOL",
+    "SOL\u2192cbBTC",
+    "cbBTC\u2192SOL",
+    "SOL\u2192WETH",
+    "WETH\u2192SOL",
+    "USDC\u2192cbBTC",
+    "cbBTC\u2192USDC",
+    "USDC\u2192WETH",
+    "WETH\u2192USDC",
+    "cbBTC\u2192WETH",
+    "WETH\u2192cbBTC"
+  ],
+  "edge_floor_pct": 0.5,
+  "weth_edge": {
+    "buy_pct": 1.0,
+    "sell_pct": 1.0
+  },
+  "edge_mode": "per_pair_cost_basis",
+  "cost_basis_file": "cost-basis.json",
+  "pair_rate_units": {
+    "SOL-USDC": "USDC/SOL",
+    "USDC-cbBTC": "USDC/cbBTC",
+    "USDC-WETH": "USDC/WETH",
+    "SOL-cbBTC": "SOL/cbBTC",
+    "SOL-WETH": "SOL/WETH",
+    "cbBTC-WETH": "cbBTC/WETH"
+  },
+  "usd_pair_edge_pct": 1.0,
+  "usd_pairs": [
+    "SOL-USDC",
+    "USDC-cbBTC",
+    "USDC-WETH"
+  ],
+  "holdings_bias": {
+    "enabled": true,
+    "least_buy_pct": 0.15,
+    "least_sell_pct": 3.0,
+    "most_buy_pct": 3.0,
+    "most_sell_pct": 0.25
+  },
+  "reverse_last_trade": {
+    "enabled": true,
+    "scope": "per_pair",
+    "rule": "Per pair last-3 fills (newest first). May reverse any unreversed fill in that window once if profitable. Normal reverse eff% = min(5.0, max(0.20, composed)). Reverse of a band_rebalance or underweight_double fill (including legacy friday_rebalance and friday_band_rebalance): eff% = min(5.0, max(0.20, 2 * composed)), leftover floor still on top. composed = biased base x own-pair mult x loss tilt x skip-halving. Reverse of an rsi_rebalance fill is a flat 5%: that replaces composed, the 2x multiplier, the 0.20 floor, and the leftover floor. It is not 5% plus leftover and it is not doubled. rsi_rebalance is not remapped to band_rebalance. After any of those reverses fill, mark the source fill reversed and store the reverse as kind edge (reversed false). Best net among clearing reverses on a pair; one fill per pair per check. Different pairs may all fill in the same check. Do not change multipliers or the same-pair streak when tagging a rebalance fill.",
+    "rebalance_reverse_mult": 2.0,
+    "window": 3,
+    "one_fill_per_pair": true,
+    "multi_pair_fills_per_check": true
+  },
+  "gas_net_profit": true,
+  "max_sell_fraction_of_balance": 0.4,
+  "max_trade_usd": 20,
+  "execution": "best_net_jupiter_manual_raydium",
+  "forbid_phantom_builtin_swap": true,
+  "skip_edge_halving": {
+    "enabled": true,
+    "floor_pct": 0.5
+  },
+  "quote_execution_lock": true,
+  "execution_primary": "jupiter_manual",
+  "execution_backup": null,
+  "underweight_double": {
+    "enabled": true,
+    "trigger": "daily_morning_balance",
+    "min_portfolio_pct": 5.0,
+    "action": "double_via_heaviest",
+    "exclude_from_buy": [
+      "USDC"
+    ],
+    "assets_checked": [
+      "SOL",
+      "cbBTC",
+      "WETH"
+    ],
+    "rule": "On the daily morning balance check only: for each of SOL/cbBTC/WETH (never USDC as the buy target), if that token\u2019s live USD value is <5% of total wallet USD, execute a buy on the best net of Jupiter manual (swap/v2/build, platformFeeBps=0) and Raydium (never Orca, never Phantom, never Jupiter Ultra) that doubles its quantity, funded by selling the current heaviest USD holding. Size still respects max 15% of combined portfolio, \u226440% of sold balance, \u22650.02 SOL fee buffer, and fee-inclusive net (gas_net). Prefer one rebalance fill per underweight asset per morning; if heaviest cannot fund full double under size caps, buy as much as caps allow then note remainder. Does not require normal edge % \u2014 this is a portfolio floor rebalance, but still must clear quote=execution and not lose after all fees beyond dust. The 5% denominator is SOL, USDC, cbBTC, and WETH only. JitoSOL and Greedy Goats are not in that total.",
+    "excludes_held": [
+      "JitoSOL",
+      "GreedyGoats"
+    ]
+  },
+  "day_loss_stop": {
+    "enabled": true,
+    "type": "pct",
+    "max_day_down_pct": 50.0,
+    "prev": "50_usd",
+    "rule": "If PT calendar day realized+unrealized net is down \u226550% vs day-start wallet USD, pause trading for the rest of that PT day and notify once. (Was $50 absolute.)"
+  },
+  "execution_peers": [
+    "raydium",
+    "orca"
+  ],
+  "execution_selection": "best_net_wins",
+  "quote_cap": {
+    "top_n": 5,
+    "rank_by": "estimated fee-inclusive gap_net (USD marks from the SOL probe + Jupiter lite price/v3, flat gas estimate) vs required %",
+    "pool": "all 12 directed basis routes plus every unreversed last-3-window reverse candidate",
+    "prefilter": "fade_trend, RSI-unwind (basis), same-pair streak cap never take a quote slot",
+    "rule": "Each edge check ranks every directed route and window reverse by how close it is to clearing and fully Jupiter+Raydium quotes only the top 5 (fewer if fewer candidates). The top-1 of those also gets an Orca Whirlpool quote when orca_top1 is on (off). Reverse fills older than reverse_last_trade.max_age_hours are expired. Route hit-rate cooldown may defer cold routes (fill remaining slots with best cooled). Fresh re-quote before a send, the Raydium fallback, and the Alchemy re-quote stay limited to those. Locked 2026-10-05.",
+    "orca_top1": false,
+    "parallel_max_workers": 5
+  }
+}

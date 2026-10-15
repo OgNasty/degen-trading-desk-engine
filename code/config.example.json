@@ -1,0 +1,73 @@
+{
+  "_readme": "Copy to config.json in the bot folder (DEGEN_HOME). Only user-specific settings live here; trading rules live in cost-basis.json (seed: seeds/cost-basis.seed.json). Secrets go in .env, never here.",
+  "paper_trading": true,
+  "run_side": "box",
+  "seed_mode": "deposit",
+  "owner_name": "YOUR_NAME",
+  "timezone": "YOUR_TIME_ZONE",
+  "wallet": {
+    "address": "YOUR_PUBLIC_SOLANA_ADDRESS",
+    "signer_env": "SOLANA_TRADING_PRIVATE_KEY"
+  },
+  "rpc": {
+    "primary_provider": "helius",
+    "backup_provider": "alchemy (optional)",
+    "primary_env": "HELIUS_RPC_URL",
+    "backup_env": "ALCHEMY_RPC_URL"
+  },
+  "assets": [
+    "SOL",
+    "USDC",
+    "cbBTC",
+    "WETH"
+  ],
+  "funding": {
+    "funded_usd": 0.0
+  },
+  "schedule": {
+    "check_interval_sec_box": 300,
+    "check_interval_sec_pc": 60,
+    "morning_balance_time": "06:59",
+    "daily_rebalance_times": [
+      "06:59",
+      "16:59"
+    ],
+    "friday_rsi_time": "Friday 21:01",
+    "fear_greed_fetch_hour": 21
+  },
+  "dashboard": {
+    "enabled": true,
+    "worker_name": "degen-dashboard",
+    "public_url": "https://degen-dashboard.YOUR-SUBDOMAIN.workers.dev/",
+    "custom_hostname": "",
+    "cloudflare_account_id_env": "CLOUDFLARE_ACCOUNT_ID",
+    "cloudflare_api_token_env": "CLOUDFLARE_API_TOKEN"
+  },
+  "alerts": {
+    "webhook_url_env": "TRADING_ALERT_WEBHOOK_URL",
+    "webhook_key_env": "TRADING_ALERT_WEBHOOK_KEY"
+  },
+  "_run_side_help": "box = Phase 1 (hosted on the Grok Bot box, 5-min checks). pc = Phase 2 (owner's Windows PC, 1-min checks). Only the matching side may run or send; the other side refuses.",
+  "_seed_mode_help": "deposit = seed starting prices from live quotes when the first deposit lands; test-trade = one approved small real swap; manual = owner-entered prices.",
+  "features": {
+    "savings_mode": false,
+    "memecoin_mode": false,
+    "memecoin": {
+      "symbol": "GreedyGoats",
+      "name": "Greedy Goats",
+      "mint": "GGiveYrqhfJc5pgBnjuY3NP5cW3ni1nFHeJXYZGFappF",
+      "decimals": 6,
+      "token_program": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+    },
+    "_help": "Asked once at setup (one multi-select). savings_mode: each time the wallet gains $10, buy $4 of JitoSOL (staked SOL) and keep it out of trading. memecoin_mode: each $10 gain buys $1 of Greedy Goats (memecoin), held for fun. Apply with apply_features.py."
+  },
+  "funding_suggestion_usd": 50,
+  "checkin": {
+    "after_hours": 24,
+    "routine_name": "Degen 24h check-in"
+  },
+  "engine_url": "https://raw.githubusercontent.com/OgNasty/degen-trading-desk-engine/main/TRADING%20TEMPLATE%20ENGINE.txt",
+  "engine_manifest_url": "https://raw.githubusercontent.com/OgNasty/degen-trading-desk-engine/main/engine-version.json",
+  "_engine_readme": "engine_url = where TRADING TEMPLATE ENGINE.txt is published; engine_manifest_url = engine-version.json next to it (leave as-is to derive it from engine_url). Used by update_engine.py and the weekly update check.",
+  "update_check_routine": ""
+}

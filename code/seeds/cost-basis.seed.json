@@ -1,0 +1,816 @@
+{
+  "method": "per_pair_rate_basis",
+  "solana_rpc_order": "helius, alchemy, public",
+  "rate_convention": "rate = quote units per 1 base unit. Pair id is BASE-QUOTE with quote as the pricing currency of the basis.",
+  "buy_sell_pct": {
+    "base_buy_pct": 0.5,
+    "base_sell_pct": 0.5,
+    "usd_pair_buy_pct": 1.0,
+    "usd_pair_sell_pct": 1.0,
+    "weth_buy_pct": 1.0,
+    "sell_pct": 0.5,
+    "usd_pairs": [
+      "SOL-USDC",
+      "USDC-cbBTC",
+      "USDC-WETH"
+    ],
+    "loss_scale": "Buy leg only: bought coin below USD avg cost -> buy leg x2; at/above cost or unknown -> x1.",
+    "holdings_bias": "See holdings_bias. The bias sets the base of that coin's own leg (least-held: buy 0.15% / sell 3%; most-held: buy 3% / sell 0.25%).",
+    "note": ""
+  },
+  "all_pairs_have_basis": false,
+  "pair_edge_escalation": {
+    "rule": "each pair's multiplier is 1x or 2x only. An edge fill (counts_as_edge true, including reverses and any-profit fills) on pair P at 1x sets P to 2x; the next edge fill on P sets it back to 1x. Other pairs never affect P. Rebalance fills (counts_as_edge false) never change it. eff% still clamped 0.20-5.0% (effective_pct_clamp). All multipliers reset to 1x at the change (old unbounded doubling kept in migration_rules1012.previous).",
+    "base_buy_pct": 0.5,
+    "base_sell_pct": 0.5,
+    "weth_buy_pct": 1.0,
+    "usd_pair_buy_pct": 1.0,
+    "usd_pair_sell_pct": 1.0,
+    "usd_pairs": [
+      "SOL-USDC",
+      "USDC-cbBTC",
+      "USDC-WETH"
+    ],
+    "max_mult": 2,
+    "mode": "toggle_1x_2x",
+    "last_fill_pair": "",
+    "last_fill_tx": "",
+    "multipliers": {
+      "SOL-USDC": 1,
+      "USDC-cbBTC": 1,
+      "USDC-WETH": 1,
+      "SOL-cbBTC": 1,
+      "SOL-WETH": 1,
+      "cbBTC-WETH": 1
+    },
+    "note": "",
+    "last_edge_fill_side_by_pair": {},
+    "updated_pt": ""
+  },
+  "same_pair_streak_cap": {
+    "enabled": true,
+    "max_consecutive_fills": 3,
+    "excludes": [
+      "underweight_double",
+      "band_rebalance",
+      "friday_rebalance",
+      "savings_jitosol",
+      "memecoin_greedy_goats",
+      "rsi_rebalance"
+    ],
+    "rule": "Edge checks only: do not fill a route when it would be the 4th consecutive edge-check fill on the same pair. A fill on a different pair sets the streak to 1 on that pair. A skip does not increment and does not reset. Rebalance and morning underweight fills do not count and do not reset. Persisted here across restarts. A bad-condition skip (price impact or priority-fee spike) does not increment and does not reset. Savings JitoSOL buys are excluded: they do not increment and do not reset this streak. Greedy Goats buys are excluded: they do not increment and do not reset this streak.",
+    "count": 0,
+    "pair": "",
+    "last_edge_fill_side": "",
+    "last_edge_fill_tx": "",
+    "last_edge_fill_time_pt": "",
+    "initialized_from": "",
+    "updated_pt": ""
+  },
+  "holdings_bias": {
+    "enabled": true,
+    "rule": "Each check, rank SOL/USDC/cbBTC/WETH by live USD value (JitoSOL and Greedy Goats not ranked). The required % uses the bought coin's buy leg only: buying the least-held coin starts at 0.15%, buying the most-held coin starts at 3%, middle coins keep the normal base (1.0% USD pairs / WETH buys, 0.5% otherwise). The sell-leg bias values (least_sell_pct 3%, most_sell_pct 0.25%) are kept in config but no longer affect the required %.",
+    "least_buy_pct": 0.15,
+    "least_sell_pct": 3.0,
+    "most_buy_pct": 3.0,
+    "most_sell_pct": 0.25,
+    "assets": [
+      "SOL",
+      "USDC",
+      "cbBTC",
+      "WETH"
+    ],
+    "excluded_held": [
+      "JitoSOL",
+      "GreedyGoats"
+    ],
+    "updated_pt": ""
+  },
+  "reverse_last_trade": {
+    "enabled": true,
+    "scope": "per_pair",
+    "rule": "For EACH of the 6 pairs, may profitably reverse ANY of that pair's last 3 fills (newest-first window), once each \u2014 not only the most recent fill, and not only the global last trade. Opposite directed route on that pair; size exactly that fill's size; edge vs that fill's exchange rate. A fill already marked reversed (or recorded in reversed_fill_txs_by_pair) is not eligible again. If more than one of the last 3 would clear on a pair, take the best fee-inclusive net on that pair (gap_net); at most one fill per pair per check. Different pairs that each clear may all fill in the same check, sequentially, with balances refreshed between fills. Composed % = biased base (pair bases + holdings bias) x own-pair multiplier x token USD loss tilt (2x buy / 0.5x sell when that leg's token is underwater vs USD cost; 0 or profit leaves the leg at 1x) x skip-halving. A normal reverse (fill kind is edge, or kind is missing) uses eff% = min(5.0, max(0.20, composed)). A reverse of a rebalance fill (last_fill_by_pair[].kind is band_rebalance or underweight_double: Friday band rebalance or morning underweight double) doubles that composed % and then uses the same clamp: eff% = min(5.0, max(0.20, 2 * composed)). The 2x is only on that reverse-of-rebalance path, after skip-halving and before the clamp. The extra leftover floor (0.15% on SOL-USDC, USDC-cbBTC, USDC-WETH; 0.10% on SOL-cbBTC, SOL-WETH, cbBTC-WETH) still applies on top of that eff%. After a reverse of fill X on pair P, X.reversed becomes true and the reverse fill is appended with kind edge and reversed false, so a later reverse of that reverse is a normal edge reverse (and also only once). An edge reverse on pair P does not reset P's pair_edge_escalation multiplier (it doubles like any other edge fill on P). Another pair's fill does not reset it. Tagging kind on a rebalance fill does not change multipliers or the same-pair streak. A fill whose kind is rsi_rebalance reverses only at a flat 5% profit. That 5% replaces composed, the 2x rebalance multiplier, the 0.20 floor, and the leftover floor. It is not 5% plus leftover. friday_rebalance and friday_band_rebalance still map to band_rebalance (2x, leftover on top). rsi_rebalance is not remapped to band_rebalance. After that rsi reverse fills, it is stored as kind edge, so the next reverse of it is a normal edge reverse. A new fill on the pair (edge, band, rsi, underweight) appends and drops beyond 3; it does not mark prior fills reversed.",
+    "size": "exactly that fill's size (opposite way); never larger",
+    "rate_ref": "that fill's rate (any of the last 3 unreversed)",
+    "rebalance_reverse_mult": 2.0,
+    "rebalance_kinds": [
+      "band_rebalance",
+      "underweight_double"
+    ],
+    "rebalance_reverse_formula": "eff% = min(5.0, max(0.20, 2 * composed)); composed = biased base x own-pair mult x loss tilt x skip-halving; leftover floor still on top",
+    "normal_reverse_formula": "eff% = min(5.0, max(0.20, composed)); composed = biased base x own-pair mult x loss tilt x skip-halving; leftover floor still on top",
+    "rsi_reverse_formula": "eff% = 5 exactly. Replaces composed, the 2x multiplier, the 0.20 floor, and the leftover floor. Not 5% plus leftover. Not doubled.",
+    "rsi_reverse_kind": "rsi_rebalance",
+    "after_rsi_reverse_kind": "edge",
+    "window": 3,
+    "window_rule": "Per pair keep the last 3 fills newest-first. Any unreversed fill in that window may reverse once if profitable under the existing reverse formulas. After reverse, mark that fill reversed and append the reverse fill (kind edge unless a more specific kind is stored). A fill may reverse only once; the reverse fill itself can later reverse once. Older than last 3 are not candidates. Reversed txs stay recorded so they cannot reverse again if they somehow reappear. Per edge check: one fill per pair (best gap_net among basis + unreversed reverses); several pairs may fill in one check.",
+    "one_fill_per_pair": true,
+    "multi_pair_fills_per_check": true,
+    "max_age_hours": 96,
+    "max_age_rule": "A reverse candidate whose source fill time_pt is older than max_age_hours (96) is expired: excluded from ranking and never takes a top-N (5) quote slot. History in last_fill_by_pair is kept; only filtered.",
+    "updated_pt": "",
+    "last_fill_by_pair": {},
+    "reversed_fill_txs_by_pair": {}
+  },
+  "gas_net_profit": {
+    "enabled": true,
+    "all_fees": true,
+    "rule": "HARD: Every trade (basis edge OR per-pair reverse) must be net profitable after ALL fees \u2014 venue/swap fees, slippage in the executable quote, and real Solana network+priority gas. Estimate may gate whether to attempt; do not accept/keep a fill unless fee-inclusive P&L still clears the required edge. Applies to SOL and non-SOL pairs. Keep \u22650.02 SOL buffer.",
+    "estimate_ok_for_gate": true,
+    "real_fee_required_before_accept": true,
+    "min_sol_buffer": 0.02,
+    "updated_pt": ""
+  },
+  "size_limits": {
+    "max_trade_portfolio_pct": 15,
+    "max_trade_cap": "15% of combined portfolio USD (SOL, USDC, cbBTC, WETH, plus held JitoSOL and Greedy Goats). max_trade_usd 20 is retired and is not the cap.",
+    "max_sell_fraction_of_balance": 0.4,
+    "prev_max_sell_fraction": 0.25,
+    "min_sol_fee_buffer": 0.02,
+    "max_one_token_tradable_usd_pct": 90,
+    "rule": "Never sell more than 40% of the remaining balance of the currency being sold in one trade. Also capped at 15% of combined portfolio USD (max_trade_portfolio_pct). The old $20 cap is retired. SOL sells leave \u22650.02 SOL fee buffer. Never leave >90% of tradable USD in one token after a trade. The concentration cap's denominator is book USD only. JitoSOL and Greedy Goats are not counted in it.",
+    "book_only": [
+      "SOL",
+      "USDC",
+      "cbBTC",
+      "WETH"
+    ],
+    "pair_pnl_size_tilt": "See pair_pnl_size_tilt: per pair, x1.25 when that pair's realized P&L% > +0.25% (that trade's caps become 18.75% combined portfolio / 50% of balance; 0.02 SOL buffer unchanged), x0.75 when < -0.25%, else x1.0. Down/flat pairs and all reverses keep 15% / 40%.",
+    "max_trade_usd_unused": 20,
+    "updated_pt": "",
+    "max_trade_usd_note": "bugfix1012: unused by the edge check; the cap is max_trade_portfolio_pct (15%) of the combined portfolio"
+  },
+  "profit_sale_size_cut": {
+    "enabled": true,
+    "cut_fraction": 0.8,
+    "condition": "sold token USD unrealized P&L vs tokens_usd avg cost < 0 (below cost)",
+    "rule": "Cut a sale by 20% (keep 80%) when the sold token is below its average cost. At cost, in profit, or unknown cost: no cut. Buys never cut. Not applied to Friday RSI or morning underweight. replaces the 15% in-profit cut.",
+    "threshold": "sold_token_usd_unrealized_pnl_pct < 0",
+    "cost_field": "tokens_usd.<symbol>.avg_cost_usd",
+    "mark": "live USD price of the sold token",
+    "buys_unchanged": true,
+    "applies_after": [
+      "max_trade_usd",
+      "max_sell_fraction_of_balance",
+      "min_sol_fee_buffer"
+    ],
+    "concentration": "Still gates the post-cut trade. It is not used to shrink size before the cut.",
+    "scope": "Recurring edge checks only (basis routes and per-pair reverse). Not morning underweight_double, not Friday RSI (rsi_rebalance).",
+    "updated": ""
+  },
+  "execution": {
+    "primary": "jupiter_manual",
+    "primary_role": "comparison",
+    "peer_quote_sources": [
+      "raydium",
+      "orca_top1"
+    ],
+    "selection": "best_net_wins",
+    "quote_equals_execution": true,
+    "venue": "best_net",
+    "venues_order": [
+      "jupiter_manual",
+      "raydium",
+      "orca"
+    ],
+    "signer_env": "SOLANA_TRADING_PRIVATE_KEY",
+    "rule": "Each candidate route is quoted on Jupiter manual mode only (GET https://api.jup.ag/swap/v2/build market swap, platformFeeBps=0, no Jupiter commission) and on Raydium. Orca is not a peer. Pick the better quote after Solana network fees and any Jito tip. If that quote goes stale, re-quote the same way. Do not treat a quote as profitable just because it is above zero after fees: leftover must still be at least 0.15% on SOL-USDC, USDC-cbBTC, and USDC-WETH, and at least 0.10% on SOL-cbBTC, SOL-WETH, and cbBTC-WETH, on top of required eff% (bases, holdings bias, own-pair multiplier, loss tilt, skip-halving, clamp 0.20% to 5%). If a quote still comes back labeled Ultra, subtract Jupiter's platform fee from the edge before the test; if that fee is missing, skip the quote. Never use Phantom MCP. Sign only with <WALLET> for <WALLET>.",
+    "venue_down_rule": "Skip a down venue for that route and note it. Do not fail the check unless Jupiter manual and Raydium both fail for that route.",
+    "forbid_phantom_builtin_swap": true,
+    "phantom_mcp": false,
+    "phantom_forbidden": true,
+    "backup": null,
+    "backup_venue": null,
+    "jupiter_endpoint": "https://api.jup.ag/swap/v2/build",
+    "jupiter_mode": "manual_market",
+    "jupiter_platform_fee_bps": 0,
+    "compare_after": [
+      "solana_network_fee",
+      "priority_fee",
+      "jito_tip"
+    ],
+    "additional_profit_floor_pct": {
+      "usdc_pairs": 0.15,
+      "usdc_pair_ids": [
+        "SOL-USDC",
+        "USDC-cbBTC",
+        "USDC-WETH"
+      ],
+      "other_pairs": 0.1,
+      "other_pair_ids": [
+        "SOL-cbBTC",
+        "SOL-WETH",
+        "cbBTC-WETH"
+      ],
+      "on_top_of": "required eff% after bases, holdings bias, own-pair multiplier, loss tilt, skip-halving, then 2x only if this route reverses a rebalance fill, then clamp 0.20% to 5%",
+      "rule": "After swap fees, slippage, and real SOL gas (network + priority + any Jito tip), leftover edge must be at least this floor ON TOP of required eff%. Above zero after fees is not enough. A route must clear required eff% AND this leftover. Required eff% is the clamped composed %; a reverse of a band rebalance or underweight double uses the doubled composed % inside that clamp. If a quote is still labeled Ultra, subtract Jupiter's platform fee from the edge before the test; if that fee is missing, skip the quote."
+    },
+    "one_fill_per_pair_per_check": true,
+    "multi_pair_fills_per_check": true,
+    "fill_selection": "At most one trade per trading pair per edge check: the single most profitable fee-inclusive net (gap_net) among that pair's clearing basis route and unreversed last-3 reverse candidates. Tie: reverse of the newest eligible fill. Different pairs that each clear may all fill in the same check, sequentially, refreshing balances between fills so the next does not oversell.",
+    "raydium_first_after_jupiter_program_fail": {
+      "state_file": "jupiter-ix6-state.json",
+      "fail_threshold": 2,
+      "window_hours": 24,
+      "rule": "Per pair: 2 consecutive Jupiter sends ending 'Program failed to complete' (no Jupiter success between), newest within 24h -> try Raydium first on that pair; Jupiter only if Raydium does not clear/build. Jupiter success resets. Other pairs: Jupiter first + one-shot Raydium fallback."
+    },
+    "alchemy_fallback_cap": {
+      "per_directed_route_attempt": 1,
+      "per_edge_check": 2,
+      "rule": "After a Helius reject or accepted-but-unconfirmed send, the Alchemy re-quote/send runs at most once per directed route attempt (a Jupiter send and its Raydium fallback share it) and at most twice per edge-check process (edge fills plus savings/memecoin hook sends). When capped, no Alchemy re-quote and no send; logged ALCHEMY_CAP. Public mainnet is never a send endpoint."
+    },
+    "orca_top1": {
+      "enabled": false,
+      "rule": "For the single best-ranked candidate (quote_rank=1) each check, also quote Orca Whirlpool via Jupiter swap/v2/build?dexes=Whirlpool (Orca has no public REST swap API). Compare Jupiter manual, Raydium, Orca; best fee-inclusive net wins. If Orca wins and clears, execute via the same build/sign/Helius\u2192Alchemy path (payload shape matches jupiter_manual). Routes 2\u20133 stay Jupiter+Raydium only. Orca quote/build failures are logged and ignored. Slippage 30 bps.",
+      "via": "jupiter_build_dexes_Whirlpool"
+    },
+    "dropped_send_wait": "an unconfirmed first send is polled until it lands (that is the fill, no more sends) or is provably expired (block height on the RPC that issued its blockhash > its lastValidBlockHeight, then a final full-history status read finds nothing), capped ~110 s after the 10 s confirm window. Only after proven expiry the existing fresh-quote Alchemy backup send (new blockhash, new signature, trade rules re-checked). Not provable in the cap: stop, no re-send. One such wait per check, then no new sends that check. No wait if the check is past 150 s; no backup send past 320 s (runner timeout 480 s).",
+    "wallet": "",
+    "updated_pt": ""
+  },
+  "quote_execution_lock": {
+    "enabled": true,
+    "rule": "Edge is vs cost-basis after the executable quote, and that exact quote (route/amountOut) is what must be executed. If the live tx would differ, re-quote and re-check; do not fill on a stale quote.",
+    "updated_pt": ""
+  },
+  "skip_edge_halving": {
+    "enabled": true,
+    "rule": "After quiet_checks_to_halve (60) consecutive quiet checks (outcome SKIP, nothing filled), halve current_multiplier exactly once and set streak_halved. Further quiet checks in that streak do not halve again. No unlimited halving. No once-per-hour timer and no multiplier floor (ignore last_halve_pt / halve_interval; there is no min_multiplier; do not re-enable a 0.5 floor). A quiet check does not reset the multiplier. An edge fill (counts_as_edge true) resets current_multiplier to 1.0, clears consecutive_quiet_checks, clears streak_halved, and clears skips_since_fill. A rebalance fill (band_rebalance / underweight_double / rsi_rebalance, counts_as_edge false) does not reset the multiplier, does not count as a quiet check, and does not count as an edge fill. Required % still uses clamp(composed * multiplier) via effective_pct_clamp (floor 0.20%, cap 5.0%). The 0.20 floor is on the percent, not a multiplier floor. A fade, price-impact, or fee skip is a quiet check (not a fill): it counts toward the two and does not reset. ~22:13 PT.",
+    "floor_pct": 0.2,
+    "floor_exceptions": {},
+    "quiet_checks_to_halve": 60,
+    "current_multiplier": 1.0,
+    "skips_since_fill": 0,
+    "consecutive_quiet_checks": 0,
+    "streak_halved": false,
+    "updated_pt": "",
+    "floor_note": "",
+    "note_pending": "",
+    "note_fill_repair": ""
+  },
+  "underweight_double": {
+    "enabled": true,
+    "trigger": "daily_morning_balance",
+    "min_portfolio_pct": 5.0,
+    "action": "double_via_heaviest",
+    "exclude_from_buy": [
+      "USDC"
+    ],
+    "assets_checked": [
+      "SOL",
+      "cbBTC",
+      "WETH"
+    ],
+    "rule": "On the daily morning balance check only: for each of SOL/cbBTC/WETH (never USDC as the buy target), if that token\u2019s live USD value is <5% of total wallet USD, execute a buy on the best net of Jupiter manual (swap/v2/build, platformFeeBps=0) and Raydium (never Orca, never Phantom, never Jupiter Ultra) that doubles its quantity, funded by selling the current heaviest USD holding. Size still respects max $20/trade, \u226440% of sold balance, \u22650.02 SOL fee buffer, and fee-inclusive net (gas_net). Prefer one rebalance fill per underweight asset per morning; if heaviest cannot fund full double under size caps, buy as much as caps allow then note remainder. Does not require normal edge % \u2014 this is a portfolio floor rebalance, but still must clear quote=execution and not lose after all fees beyond dust. The 5% test uses only SOL/USDC/cbBTC/WETH. JitoSOL and Greedy Goats USD is not in the denominator and they are not buy targets or the heaviest funding holding.",
+    "denominator": "book USD of SOL, USDC, cbBTC, and WETH only",
+    "excludes_held": [
+      "JitoSOL",
+      "GreedyGoats"
+    ],
+    "updated_pt": "",
+    "reenabled_note": "",
+    "retired_note": ""
+  },
+  "day_loss_stop": {
+    "enabled": true,
+    "type": "pct",
+    "max_day_down_pct": 50.0,
+    "prev": "50_usd",
+    "rule": "If PT calendar day realized+unrealized net is down \u226550% vs day-start wallet USD, pause trading for the rest of that PT day and notify once. (Was $50 absolute.)",
+    "updated_pt": ""
+  },
+  "effective_pct_clamp": {
+    "enabled": true,
+    "all_in_floor_pct": 0.2,
+    "cap_pct": 5.0,
+    "formula": "per leg: leg% = min(5.0, max(0.20, composed_leg)); required % = min(sell leg, buy leg). Reverse of band_rebalance/underweight_double: each leg min(5.0, max(0.20, 2 * composed_leg)). Reverse of rsi_rebalance: 5 flat, no leftover floor.",
+    "composed_base": "per leg: biased base x pair multiplier (1x/2x) x loss tilt (sell leg x0.5 / buy leg x2 when that coin is below USD cost) x skip_edge_halving multiplier.",
+    "applies_to": [
+      "basis_edge",
+      "reverse_last_trade"
+    ],
+    "excludes": [
+      "underweight_double morning rebalance (not an edge %)"
+    ],
+    "rule": "Clamp the buy leg to 0.20-5.0% after composing it; that is the required %, then max(1.0% x skip-halving mult, it), then the leftover floor on top. Reverse of rsi_rebalance: flat 5%, no leftover floor.",
+    "rebalance_reverse": {
+      "mult": 2.0,
+      "when": "edge-check reverse whose last_fill_by_pair.kind is band_rebalance or underweight_double",
+      "not_when": "basis edge, reverse of an edge-check fill (kind edge or missing), or reverse of rsi_rebalance (flat 5%, no leftover)",
+      "order": "after bases, holdings bias, own-pair multiplier, loss tilt, and skip-halving; before the 0.20-5.0 clamp",
+      "rsi_rebalance": "flat 5% replaces composed, 2x, 0.20 floor, and leftover floor"
+    },
+    "updated_pt": ""
+  },
+  "bad_condition_skip": {
+    "enabled": true,
+    "scope": "edge_checks_only",
+    "excludes": [
+      "underweight_double",
+      "band_rebalance",
+      "friday_rebalance",
+      "rsi_rebalance"
+    ],
+    "price_impact_max_pct": 0.3,
+    "memecoin_exempt": true,
+    "memecoin_exempt_applies_to": "price_impact_only",
+    "price_impact_units": {
+      "jupiter_manual": "payload.priceImpactPct is a decimal ratio (0.001 = 0.1%). Compared after multiplying by 100.",
+      "raydium": "data.priceImpactPct on compute/swap-base-in is already percent (0.05 = 0.05%). Compared as-is."
+    },
+    "missing_price_impact": "If the winning quote does not state price impact, the 0.3% rule does not skip that quote.",
+    "fee_spike": {
+      "rule": "Skip the winning quote when the tip that would be attached (priority fee plus any Jito tip, in SOL) is more than tip_multiple times the normal signature fee (base_signature_lamports, 5000, times signatures on the quote). Compare strictly greater. Exactly 2x does not skip. These pairs use one required signature unless the quote states otherwise. A missing priority fee and a missing Jito tip do not spike. The retired 3x median and the 1000000 micro-lamport ceiling are not the spike test.",
+      "tip_multiple": 2,
+      "base_signature_lamports": 5000,
+      "unit": "SOL",
+      "retired_not_used": {
+        "median_multiple": 3,
+        "median_window": 20,
+        "priority_fee_ceiling_micro_lamports_per_cu": 1000000,
+        "recent_priority_fees_micro_lamports_per_cu": [
+          527,
+          510,
+          510,
+          2003,
+          1520,
+          511,
+          1443,
+          1602,
+          1882,
+          10000,
+          2862,
+          2086,
+          1042,
+          1000,
+          510,
+          1001,
+          3076,
+          1960,
+          3225,
+          555
+        ]
+      }
+    },
+    "on_skip": "Not a fill. Do not change same_pair_streak or pair multipliers. If no other pair's winning quote clears, the check is a normal skip and skip-halving applies.",
+    "where": "_edge_check_run.py winning quote only, after the best net of Jupiter manual and Raydium clears. Scan drops that route from fill candidates and tries another pair. fresh_executable checks the refreshed winning quote again and returns before sign. Not applied in morning underweight, Friday RSI, or the Friday band fallback.",
+    "rule": "Edge checks only. Do not fill a route whose winning Jupiter manual or Raydium quote has price impact over price_impact_max_pct (0.3), unless that pair is tagged memecoin (pair.memecoin true or pair.category memecoin) and memecoin_exempt is true and memecoin_mode.enabled is true. The exemption is the price-impact rule only. Also do not fill when the attached tip (priority fee plus any Jito tip, in SOL) is more than about 2x the base signature fee (5000 lamports times signatures). Current pairs SOL-USDC, USDC-cbBTC, USDC-WETH, SOL-cbBTC, SOL-WETH, and cbBTC-WETH are category major and memecoin false, so the 0.3% cap applies to all of them. The Greedy Goats buy leg is tagged memecoin and is exempt from the price-impact cap only. Fee-spike skip still applies. If the winning quote fails, do not switch to the other venue on that route; try another pair that clears. If none do, the check is a normal skip."
+  },
+  "savings_mode": {
+    "enabled": false,
+    "gain_step_usd": 10,
+    "buy_usd": 4,
+    "mint": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+    "symbol": "JitoSOL",
+    "decimals": 9,
+    "held": false,
+    "edge_inventory": false,
+    "counts_toward_streak": false,
+    "min_sol_buffer": 0.02,
+    "fund_from": "JitoSOL $4: heaviest non-JitoSOL trading holding (SOL, USDC, trading cbBTC, WETH). cbBTC $1: heaviest of SOL/USDC/WETH (not cbBTC, not JitoSOL). Saved cbBTC is never a funding source.",
+    "quote": "jupiter_manual platformFeeBps=0 and raydium; best after network fees and Jito tip",
+    "rule": "ON. usd_high_water is the combined portfolio USD latch (SOL, USDC, cbBTC including saved cbBTC, WETH, plus held JitoSOL and Greedy Goats marks). Do not buy until that total is another gain_step_usd ($10) above the latch. Then, once per $10 step: buy buy_usd ($4) of JitoSOL AND buy each extra_buys entry ($1 of cbBTC, mint cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij) and hold it as savings; then add $10 to usd_high_water. The step advances the latch once if at least one of the two buys lands; if both fail the latch stays and the step is tried again next check. Each buy is one attempt per check (no retry loop). A failed extra (cbBTC) buy is recorded in extra_buy_failures/last_extra_failure and alerted as TRADE_FAIL; once the latch has advanced it is not retried. The latch itself buys nothing. Quote path: Jupiter manual (swap/v2/build, platformFeeBps=0) and Raydium, best after Solana network fees and any Jito tip. Funding: JitoSOL from the heaviest non-JitoSOL trading holding; cbBTC from the heaviest of SOL/USDC/WETH (never cbBTC itself, never JitoSOL; no tx-free reassignment). The cbBTC funding is sized from balances after the JitoSOL sale. SOL sales leave at least min_sol_buffer (0.02). On edge checks the JitoSOL funding sale is fade-checked (a fade block defers the whole step); a fade-blocked cbBTC funding token falls through to the next heaviest. Saved cbBTC is tracked in savings_cbbtc_held (raw units and amount). savings_mode.trading_balances subtracts it from wallet cbBTC for every trading path (edge sizing, 15%/18.75% caps, 40%/50% of balance, reverses, holdings bias, concentration, pair tilt, fade, Friday RSI/band rebalance, morning underweight); it is never sold by any trading path. Its USD counts in the displayed wallet total and in this latch total (like JitoSOL) but not in the trading book or tokens_usd avg cost. JitoSOL bought this way is held savings: not an edge-trade inventory token, not sold on SOL/USDC/cbBTC/WETH edge checks, and it does not count toward the streak or pair multipliers. Savings fills (JitoSOL and cbBTC) append rows to trades.csv/trades.jsonl (kind savings_buy, savings true; skipped by pair P&L, reverses, and route-hit timers) and a SAVINGS_FILL entry to sol-usdc-log.md. Edge checks call savings_mode.edge_check_hook and morning balance calls savings_mode.morning_balance_hook. If the latch is missing, or arm_guard is set and a buy would happen immediately, set the latch to the current total and do not buy. gains_credited_usd is the old gain watermark and is not this latch. Memecoin mode has its own portfolio USD latch. Do not purchase while enabled is false. A deposit of SOL, USDC, cbBTC, or WETH that is not a swap fill (see deposit_watch; whole-wallet quantities including saved cbBTC) raises this usd_high_water and memecoin_mode.usd_high_water by the deposit's USD value at arrival before the buy test. That deposit is not portfolio gain and does not buy. Swaps between existing holdings do not move this latch except +gain_step_usd after a real high-water step.",
+    "arm_guard": false,
+    "gains_credited_usd": 0.0,
+    "baseline_total_usd": 0.0,
+    "baseline_cost_usd": 0.0,
+    "baseline_source": "",
+    "baseline_checked_pt": "",
+    "baseline_at_pt": "",
+    "counts_toward_pair_multipliers": false,
+    "updated_pt": "",
+    "usd_high_water": 0.0,
+    "high_water_balances": {},
+    "high_water_prices_usd": {},
+    "high_water_source": "",
+    "high_water_at_pt": "",
+    "extra_buys": [],
+    "savings_cbbtc_held": {},
+    "extra_buy_failures": [],
+    "rule_updated_pt": ""
+  },
+  "friday_band": {
+    "weights_from": [
+      "SOL",
+      "USDC",
+      "cbBTC",
+      "WETH"
+    ],
+    "excludes": [
+      "JitoSOL",
+      "GreedyGoats"
+    ],
+    "rule": "RETIRED. Friday band weights (two smallest >= 5%, third-smallest >= 10%, largest <= 75% of SOL/USDC/cbBTC/WETH) no longer run. friday_band.enabled=false and retired=true. friday_rsi.bands_if_no_trade is false. Case 4 and skipped RSI legs do nothing; they do not fall through to bands. Legacy band_rebalance fills still reverse at eff% = min(5, max(0.20, 2 * composed)) with leftover on top. Not the flat 5% RSI reverse.",
+    "enabled": false,
+    "retired": true,
+    "two_smallest_min_pct": 5,
+    "third_smallest_min_pct": 10,
+    "largest_max_pct": 75,
+    "fill_kind": "band_rebalance",
+    "runs_when": "Never. Retired. Do not run after Friday RSI, including when RSI sends no trade."
+  },
+  "friday_rsi": {
+    "enabled": true,
+    "trigger": "friday",
+    "rsi_period": 14,
+    "rsi": "wilder",
+    "high_rsi": 70,
+    "low_rsi": 30,
+    "sell_fraction": 0.75,
+    "usdc_fraction": 0.75,
+    "dust_usd": 1,
+    "reverse_profit_pct": 5,
+    "kind": "rsi_rebalance",
+    "sol_fee_buffer": 0.02,
+    "coins": {
+      "BTC": "cbBTC",
+      "ETH": "WETH",
+      "SOL": "SOL"
+    },
+    "ranked": [
+      "SOL",
+      "cbBTC",
+      "WETH"
+    ],
+    "cash": "USDC",
+    "cash_not_ranked": true,
+    "excluded": [
+      "JitoSOL",
+      "GreedyGoats"
+    ],
+    "routes": [
+      "SOL-USDC",
+      "USDC-cbBTC",
+      "USDC-WETH"
+    ],
+    "no_direct_cross": [
+      "SOL-cbBTC",
+      "SOL-WETH",
+      "cbBTC-WETH"
+    ],
+    "tie_break": "If two coins share the highest RSI, sell the one with the larger USD balance; if still tied, SOL then cbBTC then WETH. If two share the lowest RSI, buy the one with the smaller USD balance; if still tied, the same order.",
+    "cases": {
+      "1": "If the highest RSI is 15 or more above the lowest (gap >= 15, exactly 15 counts): sell 75% of the high coin into USDC and buy the low coin with those proceeds. Never more than 75% of that coin on one check.",
+      "2": "If the gap is under 15 AND the lowest RSI is 30 or below: spend 75% of USDC to buy that lowest coin. Exactly 30 counts. Never more than 75% of USDC on one check.",
+      "3": "If the highest RSI is 70 or above AND no coin is 30 or below: sell 75% of the high coin into USDC. Exactly 70 counts. A reading of 60 is not enough. If something is 30 or below, case 1 or case 2 already ran.",
+      "4": "Otherwise do nothing. The old friday_band rules do NOT run (bands_if_no_trade false; friday_band retired)."
+    },
+    "equal_counts": "A gap of exactly 15 counts as case 1. RSI equal to 30 counts as <= 30. RSI equal to 70 counts as >= 70. RSI of 60 does not trigger case 3.",
+    "no_fallthrough": "Exactly one case. A dust or not-held skip does not select a later case. If case 1's sell is skipped, do not buy.",
+    "only_held_can_be_sold": true,
+    "max_sell_fraction_one_check": 0.75,
+    "max_usdc_fraction_one_check": 0.75,
+    "candle_source": "binance klines BTCUSDT ETHUSDT SOLUSDT interval 1d, last completed UTC candle, about 100 closes",
+    "candle_fallback": "coinbase exchange candles granularity 86400",
+    "venues": [
+      "jupiter_manual",
+      "raydium"
+    ],
+    "jupiter": "GET https://api.jup.ag/swap/v2/build Metis platformFeeBps=0 no feeAccount; reject a non-zero platform fee",
+    "not_applied": [
+      "edge required-profit percent",
+      "leftover floor",
+      "15% portfolio cap",
+      "40% of-balance cap",
+      "underwater sale cut",
+      "fade-trend",
+      "0.3% price-impact skip",
+      "priority-fee spike skip"
+    ],
+    "kept": "0.02 SOL fee buffer when the sold coin is SOL: sell min(75% of SOL, SOL balance minus 0.02). If that remainder is dust, skip the leg.",
+    "fill_kind": "rsi_rebalance",
+    "isolation": "Does not change same-pair streak, pair multipliers, or skip-halving. Updates the rate book, last_fill_by_pair, and cost basis the same way other the wallet fills do.",
+    "reverse": "Flat 5%. Not 2x. Not leftover on top. The reverse fill is then stored as kind edge.",
+    "bands_if_no_trade": false,
+    "forbid_phantom": true,
+    "gap_rsi": 15,
+    "book_floor_pct": 5,
+    "book_cap_pct": 75,
+    "equal_to_floor_allowed": true,
+    "equal_to_cap_allowed": true,
+    "exempt_from": [
+      "15% portfolio cap",
+      "40% of-balance cap"
+    ],
+    "book_limits": "RSI slices only. Do not apply the 15% portfolio cap or the 40% of-token cap. Do not leave a coin other than the one being sold under 5% of the four-coin USD book, and do not push the bought coin over 75%. Equal to 5% and equal to 75% are allowed. The sold coin itself may finish under 5%, except a USDC spend must leave USDC at or over 5%. If the full 75% slice would break either rule, cut it until both hold. If no positive size at least $1 can, skip the leg as dust and do not fall through. Case 1 applies this to the sell into USDC and then to the buy, using the book after the sell. Pre-trade USD plus the slice; total USD unchanged. Never sell more than 75% of a coin, or spend more than 75% of USDC, on one check.",
+    "basis_unwind_block": "While last_fill_by_pair.kind is rsi_rebalance, a normal edge fill on that pair must not sell the coin the RSI trade bought or buy back the coin the RSI trade sold. Only the dedicated reverse may do that, and only if it clears the flat 5% (leftover floor not added). Other pairs are unaffected. After that reverse fills, kind becomes edge and the next reverse is a normal edge reverse. band_rebalance and underweight_double stay on eff% = min(5, max(0.20, 2 * composed)) with the leftover floor on top. rsi_rebalance is not remapped to band_rebalance.",
+    "wallet_note": "Trades only from the configured wallet.",
+    "wallet": "",
+    
+    "schedule_pt": "Friday 9:01 PM owner time zone"
+  },
+  "pair_pnl_size_tilt": {
+    "enabled": true,
+    "up_mult": 1.25,
+    "down_mult": 0.75,
+    "flat_band_pct": 0.25,
+    "up_max_trade_portfolio_pct": 18.75,
+    "up_max_sell_fraction_of_balance": 0.5,
+    "min_sol_fee_buffer": "unchanged: size_limits.min_sol_fee_buffer (0.02 SOL) for every pair, up or not",
+    "state_file": "pair-pnl-state.json",
+    "pnl_measure": "Per pair, realized only (pair_pnl.py, method fifo_round_trip_usd_at_fill_minus_network_fees). Each fill on the pair first closes FIFO any open lots of the opposite direction in the pair's own rate (quote per base from executed amounts, so venue swap fees are inside the rate; Jupiter platformFeeBps=0). Gain in quote units = matched base x (sell rate - buy rate), converted to USD at the closing fill's USD price of the quote token. Unmatched size opens a lot. Every fill's network fee (gas + priority + any Jito tip; gas_sol, default 5000 lamports when not recorded) x SOL USD at that fill is subtracted. pnl_pct = realized_net_usd / traded_usd x 100, traded_usd = sum of each fill's quote leg x USD at fill time. Not tokens_usd, not funding.funded_usd.",
+    "fill_time_prices": "Live check prices for fills made by the edge check. Reconstruction: USDC=1; else nearest-in-time sample from USDC-legged fills in trades.jsonl and per-check '- balances:' $ values in sol-usdc-log.md; else current prices.",
+    "update": "On every edge-check / Friday RSI fill (append_fill_logs). At each edge-check start every trades.jsonl row not yet in pair-pnl-state.json processed_txs (e.g. morning underweight) is applied in file order. Missing state file -> full rebuild. Manual rebuild: .venv/bin/python pair_pnl.py --write.",
+    "no_fills": "A pair with no fills (or pnl unknown) is x1.0 with normal caps.",
+    "applies_to": "Edge-check basis route sale size only. Not reverse-window sizes (they mirror the original fill, normal caps), not Friday RSI/bands, not savings/memecoin funding sells, not morning underweight.",
+    "order": "UP pair (pnl_pct > +0.25%): base size at normal caps (15% combined portfolio, 40% of balance, 0.02 SOL buffer) -> x1.25 -> clamp to raised caps (18.75% combined portfolio, 50% of balance, 0.02 SOL buffer) -> profit_sale_size_cut unchanged. DOWN pair (< -0.25%): normal-cap size -> x0.75 -> normal caps -> profit_sale_size_cut. FLAT/no fills: x1.0, normal caps. Execution re-checks (fresh quote, Raydium fallback) use the same pair caps.",
+    "rule": "Per-pair realized P&L% > +0.25% -> x1.25 and that trade's caps rise to 18.75% / 50%; < -0.25% -> x0.75; within +/-0.25% or no fills -> x1.0. Replaces the portfolio-wide funded_pnl_size_tilt (retired from sizing; wallet funded P&L display unchanged). Locked .",
+    "replaces": "funded_pnl_size_tilt",
+    "updated_pt": ""
+  },
+  "flat_market_skip": {
+    "enabled": false,
+    "threshold_pct": 0.05,
+    "symbols": [
+      "SOL",
+      "cbBTC",
+      "WETH"
+    ],
+    "ref_file": "flat-market-ref.json",
+    "ref_update_on": "non_skipped_check",
+    "rule": "At the start of each edge check, compare current SOL, cbBTC (BTC), and WETH (ETH) USD prices (Jupiter lite price/v3, same as fade-trend) to the prices saved from the last NON-skipped check. If all three moved less than threshold_pct absolute, SKIP with reason flat_market: no venue quotes, no sends. Deposit/withdrawal detection still runs (savings/memecoin hooks with execute=false). Missing previous prices -> run normally. Reference is NOT updated on flat skips so slow drift still eventually triggers a full check. Does not affect morning balance or Friday RSI. threshold lowered to 0.08% 2026-10-06, then 0.05% .",
+    "updated_pt": "",
+    "paused_pt": "",
+    "paused_by": "",
+    "paused_note": ""
+  },
+  "route_hit_rate": {
+    "enabled": true,
+    "no_fill_days": 7,
+    "cooldown_hours": 24,
+    "state_file": "route-hit-state.json",
+    "reverse_policy": "tie_to_directed_route",
+    "rule": "Per directed route (e.g. SOL\u2192USDC), track last fill time. A route with no fill for no_fill_days is dropped from top-N (5) quote ranking for cooldown_hours, then eligible again for another no_fill_days window. If cooldown would leave fewer than 5 candidates (the quote cap, quote_cap.top_n), fill remaining slots with the best cooled routes. Bootstrap last fills from trades.jsonl / last_fill_by_pair; routes with no fill ever start the clock at deploy_pt. Reverse candidates use the reverse directed route key (REV:SOL\u2192USDC#tx -> SOL\u2192USDC), not exempt.",
+    "deploy_pt": "",
+    "updated_pt": ""
+  },
+  "quote_reuse_fast_path": {
+    "enabled": true,
+    "max_age_sec": 10,
+    "extra_margin_pct": 0.1,
+    "first_send_only": true,
+    "rule": "Skip the pre-send re-quote and build/send from the scan quote only when ALL hold: (1) first send attempt of the check (fresh_executable is called with reuse only for the first candidate tried and only if no edge-fill send has happened yet; every later trade re-quotes); (2) scan quote age from its response time <= max_age_sec (10s); (3) the scan quote's chosen venue clears required eff% and the pair leftover floor fee-inclusive with leftover - floor >= extra_margin_pct (0.10 percentage points); (4) same size as quoted (profit-sale cut or any size change forces a re-quote) and the size/cap/fraction/SOL-buffer, concentration, bad_condition and fade checks pass on it; (5) the quoted payload builds. Any failure re-quotes fresh (logged QUOTE_FRESH <route> only reason=...); success is logged QUOTE_REUSE <route> venue age margin. Send failures use the existing paths unchanged (Alchemy re-quote is always fresh; Raydium fallback re-quotes Raydium). Orca rows are dropped from the scan quote so the venue set matches the fresh re-quote. Missing or enabled=false = always re-quote.",
+    "locked": "2026-10-05"
+  },
+  "any_profit_after_quiet_checks": {
+    "enabled": true,
+    "name": "any_profit_after_420_quiet_checks",
+    "quiet_checks_threshold": 420,
+    "counter_source": "skip_edge_halving.skips_since_fill (mirrored to quiet_checks_since_fill)",
+    "signal": "edge_net > 0",
+    "bypasses": [
+      "lower-side required_pct",
+      "leftover_floor",
+      "clears_net"
+    ],
+    "still_respects": [
+      "any_profit_min_edge_pct (edge_net >= 0.25%)",
+      "any_profit_min_usd ($2)",
+      "bad_condition_skip",
+      "concentration",
+      "fade_trend",
+      "inventory",
+      "same_pair_streak",
+      "size_caps"
+    ],
+    "reset_on": "any fill (edge or rebalance) \u2014 quiet_checks_since_fill back to 0; skip_edge_halving still only fully resets on edge fills",
+    "rule": "After 420 consecutive edge checks with no fill (about 7 hours at 60s checks) (quiet_checks_since_fill / skips_since_fill), the next candidate whose fee-inclusive edge vs cost basis is strictly positive (edge_net > 0) may fill \u2014 bypassing normal required_pct / leftover floor / clears_net. Does NOT force a loser (edge_net <= 0 still skips). Reset the quiet-check counter on any fill..",
+    "quiet_checks_since_fill": 0,
+    "updated_pt": "",
+    "last_reset_reason": "",
+    "updated_note": ""
+  },
+  "send_fees": {
+    "raydium_min_priority_microlamports": 35000,
+    "rule": "Raydium quotes and builds use at least 35,000 micro-lamports per compute unit when the shared priority-fee estimate is lower (it is usually 0 on our RPC). That is about 0.0000035-0.000007 SOL extra per typical Raydium swap (100k-200k CU), well under a cent. Kept under the existing fee-spike skip (2x the 5000-lamport signature fee at the 250k-CU quote estimate). Jupiter fee logic unchanged."
+  },
+  "fear_greed_rule": {
+    "enabled": true,
+    "greed_above": 75,
+    "greed_size_mult": 0.5,
+    "fear_below": 25,
+    "timeout_sec": 6,
+    "rule": "FNG>75: all fills x0.5 + no USDC->SOL/cbBTC/WETH; FNG<25: no SOL/cbBTC/WETH->USDC; fail closed ()",
+    "tz": "",
+    "retry_sec": 3600,
+    "max_age_sec": 604800,
+    "schedule": "fetch once a day at the first check at/after 21:00 PT shifted by this install's jitter minutes (template v1.0.0); cache persisted in fear-greed-state.json; failed fetch keeps last value, retries hourly; no cache -> fetch now; >7 days old or unavailable -> F&G rule OFF until fresh data (template v1.0.0; owner bot fails closed)",
+    "fetch_hour_pt": 21
+  },
+  "reversal_close_cap_pct": 85,
+  "vwap24h_rule": {
+    "enabled": true,
+    "timeout_sec": 6,
+    "price_source": "kraken_last_c0",
+    "rule": "USDC->token only if Kraken last < 24h VWAP p[1]; token->USDC only if last > VWAP; crypto<->crypto unaffected; fail closed"
+  },
+  "friday_trim75": {
+    "enabled": true,
+    "threshold_pct": 75.0,
+    "target_pct": 74.9,
+    "require_above_vwap": true,
+    "max_trade_usd": 20.0,
+    "max_sell_fraction_of_balance": 0.4,
+    "min_sol_fee_buffer": 0.02,
+    "min_trade_usd": 1.0,
+    "rule": "Live Friday run, after RSI: if SOL/WETH/cbBTC > 75% of SOL+USDC+cbBTC+WETH book AND Kraken last > 24h VWAP (fail closed), sell to 74.9% into the better of the other two non-USDC coins (best fee-inclusive USD net over Jupiter manual fee 0 and Raydium; losses allowed, least bad chosen). Caps: 40% of sold balance, 0.02 SOL buffer, $20/trade (remainder logged). Kind friday_trim75; reversed once via the normal edge reverse path (85% cap). No Fear & Greed (no USDC).",
+    "updated_pt": "",
+    "source": ""
+  },
+  "daily_rebalance_v2": {
+    "enabled": true,
+    "cash_divisor": 5.0,
+    "min_pct": 20.0,
+    "max_pct": 55.0,
+    "daily_fraction": 0.1,
+    "min_trade_usd": 1.0,
+    "respect_size_limits": true,
+    "supersedes": [
+      "underweight_double"
+    ],
+    "rule": "USDC = F&G/5 % of the total trading book; the rest split cbBTC/WETH/SOL by CoinGecko 24h volume share (dashboard Global Volume pie); each crypto clamped to 20-55% of the total, bounded proportional fill (unclamped coins keep their volume ratios). Feasible for any F&G: 3 x 20% = 60% + USDC max 20% (F&G 100/5) = 80%. Runs at 6:59 AM and 4:59 PM PT, each run 1/10 of the gap.",
+    "allow_negative_net": true,
+    "fill_kind": "daily_v2",
+    "reversal_cap_pct": 50,
+    "apply_fear_greed": true,
+    "skip_vwap": true,
+    "time_pt_superseded": "06:59",
+    "approved_2026_10_11": "",
+    "approved_2026_10_11c": "",
+    "approved_2026_10_11d": "",
+    "go_live": "",
+    "times_pt": [
+      "06:59",
+      "16:59"
+    ],
+    "slots_note": "",
+    "floor20": "",
+    "time_pt_note": ""
+  },
+  "required_pct_rule": {
+    "rule": "required % = the bought coin's BUY leg only. Buy leg base: 1.0% on USD pairs and all WETH buys / 0.5% otherwise, replaced by the holdings bias (bought coin least-held 0.15%, most-held 3%); x pair multiplier (1x/2x) x loss tilt (x2 if the bought coin is below its USD avg cost) x skip-halving; clamp 0.20-5.0%. Then the minimum floor: max(1.0% x skip-halving mult, buy leg) (0.5% while halved), then the leftover floor (0.15% USD pairs, 0.10% others) on top; must clear after all fees. Applies to basis routes and edge reverses (reverse of band/underweight: leg doubled before the clamp). RSI reverse stays flat 5%. Scheduled rebalances (daily_v2, Friday RSI, 75% trim) are not affected. The sell leg (sold coin) is no longer used (replaces lowerside, which took the lower of both legs)."
+  },
+  "min_required_floor": {
+    "enabled": true,
+    "min_required_pct": 1.0,
+    "min_edge_usd": 1.0,
+    "min_reverse_usd": 0.49,
+    "any_profit_min_edge_pct": 0.25,
+    "any_profit_min_usd": 2.0,
+    "floor_follows_skip_halving": true,
+    "rule": "required % = max(1.0% x the skip-halving multiplier (0.5% while halved after 60 quiet checks, back to 1% after an edge fill), the buy-leg clamped required %), then the leftover floor on top. Applies to edge-check fills and edge-check reversals. RSI reversals stay flat 5%. Minimum trade size: $1 for edge fills, $X for reversals (below the 85% reverse of a $1 fill, so a reverse of a small fill is not blocked); smaller routes are skipped before quoting (skip_reason min_size). Scheduled rebalances (daily_v2, Friday RSI, 75% trim) are not subject to these minimums (daily_v2 keeps its own min_trade_usd $1 per leg). The any-profit unlock (420 quiet checks) fills only when edge_net >= 0.25% AND the trade is >= $2.",
+    "exempt": [
+      "daily_v2",
+      "friday_rsi",
+      "friday_trim75",
+      "rsi_rebalance reverse (flat 5%)"
+    ],
+    "updated_pt": "",
+    "history": ""
+  },
+  "knife_hurdle_v1": {
+    "enabled": true,
+    "edge_hurdle_usd": 0.1,
+    "reverse_hurdle_usd": 0.01,
+    "disable_vwap": true,
+    "rule": "Edge fills only: skip when bought/sold price ratio now < 24h ago (Jupiter price v3 / CoinGecko via fade_trend; missing price = skip edge fill). Every edge fill must clear required % + leftover floor + $X/sell_usd; reversals + $X. VWAP gate off (buys and sells); Fear & Greed limits kept. enabled=false restores the previous behavior exactly.",
+    "source": "",
+    "updated_pt": ""
+  },
+  "auto_slippage": {
+    "enabled": true,
+    "max_bps": 29,
+    "min_bps": 2,
+    "note": ""
+  },
+  "pairs": {
+    "SOL-USDC": {
+      "category": "major",
+      "memecoin": false,
+      "base": "SOL",
+      "quote": "USDC",
+      "rate_unit": "USDC/SOL",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    },
+    "USDC-cbBTC": {
+      "category": "major",
+      "memecoin": false,
+      "base": "cbBTC",
+      "quote": "USDC",
+      "rate_unit": "USDC/cbBTC",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    },
+    "USDC-WETH": {
+      "category": "major",
+      "memecoin": false,
+      "base": "WETH",
+      "quote": "USDC",
+      "rate_unit": "USDC/WETH",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    },
+    "SOL-cbBTC": {
+      "category": "major",
+      "memecoin": false,
+      "base": "cbBTC",
+      "quote": "SOL",
+      "rate_unit": "SOL/cbBTC",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    },
+    "SOL-WETH": {
+      "category": "major",
+      "memecoin": false,
+      "base": "WETH",
+      "quote": "SOL",
+      "rate_unit": "SOL/WETH",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    },
+    "cbBTC-WETH": {
+      "category": "major",
+      "memecoin": false,
+      "base": "WETH",
+      "quote": "cbBTC",
+      "rate_unit": "cbBTC/WETH",
+      "rate": null,
+      "source": "seed_from_first_quote"
+    }
+  },
+  "tokens_usd": {
+    "SOL": {
+      "qty": 0,
+      "avg_cost_usd": null,
+      "cost_source": "seed"
+    },
+    "USDC": {
+      "qty": 0,
+      "avg_cost_usd": null,
+      "cost_source": "seed"
+    },
+    "cbBTC": {
+      "qty": 0,
+      "avg_cost_usd": null,
+      "cost_source": "seed"
+    },
+    "WETH": {
+      "qty": 0,
+      "avg_cost_usd": null,
+      "cost_source": "seed"
+    }
+  },
+  "funding": {
+    "funded_usd": 0.0,
+    "history": [],
+    "rule": "Net deposits minus withdrawals into the trading wallet; wallet P&L % is measured against this."
+  },
+  "deposit_watch": {
+    "assets": [
+      "SOL",
+      "USDC",
+      "cbBTC",
+      "WETH"
+    ],
+    "balances": {},
+    "sol_fee_qty_max": 0.002,
+    "swap_leg_min_usd": 0.5
+  },
+  "held_outside_book": {
+    "symbols": [],
+    "names": [],
+    "mints": [],
+    "rank_and_size": [],
+    "excluded_from": []
+  },
+  "force_best_trade": {
+    "last": {}
+  },
+  "memecoin_mode": {
+    "enabled": false,
+    "note": "Default memecoin: Greedy Goats. Owner can change symbol/mint/decimals/token_program later.",
+    "gain_step_usd": 10,
+    "buy_usd": 1,
+    "symbol": "GreedyGoats",
+    "name": "Greedy Goats",
+    "mint": "GGiveYrqhfJc5pgBnjuY3NP5cW3ni1nFHeJXYZGFappF",
+    "decimals": 6,
+    "token_program": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "pay_symbol": "JitoSOL",
+    "pay_mint": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+    "held": false,
+    "edge_inventory": false,
+    "memecoin": true,
+    "category": "memecoin",
+    "counts_toward_streak": false,
+    "counts_toward_pair_multipliers": false,
+    "arm_guard": false,
+    "min_sol_buffer": 0.02,
+    "qty": 0,
+    "cost_usd": 0
+  },
+  "_template_note": "Blank starting rules for a new install: no balances, fills, cost basis or wallet info. Copy to <DEGEN_HOME>/cost-basis.json. pairs.*.rate and tokens_usd.*.avg_cost_usd stay null until seed_prices.py sets them from the chosen starting-price option.",
+  "updated_pt": "",
+  "edge_note": ""
+}
