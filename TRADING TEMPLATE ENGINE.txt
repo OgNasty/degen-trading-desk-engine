@@ -1,20 +1,20 @@
 #TTE-FORMAT 1
 #BUNDLE Degen Trading Desk engine
-#ENGINE_VERSION 1.1.0
-#RELEASED 2026-10-15
-#BUILT 2026-10-15
-#FILE_COUNT 90
-#TOTAL_BYTES 1748140
-#SETUP_MD sha256=7a96be56596dcabf8204a0d29aa569c1af87eba30803bdc7c95f08e7713abaff bytes=33447
+#ENGINE_VERSION 1.1.1
+#RELEASED 2026-10-16
+#BUILT 2026-10-16
+#FILE_COUNT 93
+#TOTAL_BYTES 1774919
+#SETUP_MD sha256=9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 bytes=34860
 #RULES 1) each block: header line "=== FILE: path | sha256=H | bytes=N[ | enc=base64] ===", newline, exactly N bytes of payload, newline, "=== END FILE ===". 2) N = payload byte length (base64 text length when enc=base64). 3) sha256 is of the decoded raw file. 4) paths are relative, "/"-separated; root = Degen Template folder. 5) __extractor__.py is the tool, not part of the tree. 6) .sh files get mode 755. 7) .env.example -> .env and config.example.json -> config.json are made at install, per SETUP.md.
 #EXTRACT save the __extractor__.py block payload to extract.py; run: python extract.py "TRADING TEMPLATE ENGINE.txt" <out_dir>
 #MANIFEST sha256 bytes path
-#  7a96be56596dcabf8204a0d29aa569c1af87eba30803bdc7c95f08e7713abaff 33447 SETUP.md
-#  c6af3cd5da4a1e2843b4ebfc8c6136fd435ff251301968681a7dc7c240ad81a4 16729 TEMPLATE-NOTES.md
+#  9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 34860 SETUP.md
+#  5d666325a1c87c9cbc38f6eb341043a29fbb96b74ed91a0d24069480031dcb7d 18442 TEMPLATE-NOTES.md
 #  e455e846df5018cbc70f24ce9df85e80392dfa12dfe6f211451dfa853841f324 1304 code/.env.example
-#  4eb08615f673f56db7a0aa7cfc7ea76d9b3eae6d4bb02b38e4e7b0012a401729 507 code/ENGINE_VERSION.json
-#  881f9dda50a745b1413cebd472f46d9d240d8efbca552bebb76b67d4cb73e775 197963 code/_edge_check_run.py
-#  e6809fd9d1d3a8d4760e2d13d3bb1727e2d19909fae8bc608d6175fd1920dd8f 3250 code/after_bals.py
+#  295b0d400221341606a71d69a8699b26c8994f69ddc9ebba3992d8551aa0abc8 742 code/ENGINE_VERSION.json
+#  29dbd49f95faa4920441b8429c9e06cc5ce8a1998d1eda61137df7eb05b270d5 201561 code/_edge_check_run.py
+#  2aec8f16e2bc16088b01f06c96ef8d105afa6464c986266dd75afcfe9814dd6c 3494 code/after_bals.py
 #  875a20773a1f9140a00cb85dd668d2069871e51a23b29bec41742917235ebf2e 3241 code/apply_features.py
 #  33deca8c8da2301b36895b96de76d80f1c091648dc426ae874821db35fe3cdf2 5501 code/auto_slip.py
 #  50573335dea544ddb2659f9f70f21fef6a8585235dbc4a3cb3f73bd188caf666 1596 code/backups.py
@@ -27,10 +27,10 @@
 #  4d838810ac553d116cee01c3c8733379a8179f5df196433a8d934f910832a62c 32744 code/box_runner.py
 #  cad6645d32f49b53f715359cc01e9a9f5ed7fc25044128e7889151826827da1a 3808 code/checkin_report.py
 #  bab3a22d267030e94952dec21557f3dad61d37047f087c3021b0c4373c6e0556 3194 code/config.example.json
-#  bb304d3d7d615e743ab0da0118889ceff60a9eaa7f155a0663456ce9aaa45988 17592 code/daily_rebalance_v2.py
+#  473f5ee48a11ce6b8fe86752e0895b776c83432065b47f29bca5f0ef2103dbfa 17878 code/daily_rebalance_v2.py
 #  c1b0066082faa1f0fc39bfb2ce5455a97c2f7681832f8b04ff9de92e4632e481 2420 code/dashboard-worker/src/index.js
 #  9ea41e9a7a276cb8ed42ffc7f216ccc6949953822bad0fc6446f8e4f6342e2e1 648 code/dashboard-worker/wrangler.toml
-#  199ad7979a2083071171a58cc15e23846edd44f0b39a161d87defcae048c2433 105756 code/dashboard/bot-desk.html
+#  681c210cf6ea891df8a7eb6c29545969f8db4f79c8e74cbb4d011a161554d3fa 107863 code/dashboard/bot-desk.html
 #  d0efe57badcd9eaa59063164140df5a38ac2bf3d1c82de439c2e2fb4337d0cbd 12376 code/dashboard/favicon.png
 #  d0cfa57d7964d4154841c2d34c1308d710a15094c62188fe545bbfd52efc34b1 343509 code/dashboard/metaimage.jpg
 #  621d4b26ae62cdfb0e719c3a2162fbd5a0336d42ed239799f9e4e219bfa63e72 258909 code/dashboard/piespider.png
@@ -38,12 +38,13 @@
 #  29d0ffce3286e2b64ce6df7d1e61690eba02ac0d908fdb8afbe5a5f4cfbccda4 12414 code/dashboard_snapshot.py
 #  d7694a43ba720a2a4a0c96c33d4b0d8de501e10428747223678864884e09a6c2 13712 code/degen_home.py
 #  f3d067c620503b06bf413fcc2cbc4f65595545a8a6229f9653188e477457e81d 18754 code/degen_lend.py
-#  699df641485b86bee2c1e5e125ae4f1d9de2eac56db7d62b85a303237fa25658 18093 code/desk_json.py
+#  c7f2f52a4bab31e5a3c68ed364e8ddbad5ec00a8b5179c6ea247395f4ef2c745 18489 code/desk_json.py
 #  84a5e31ce341c71fbec9d13aba460e2b595c908e1f416513377582c0020fc205 2119 code/dpapi_protect.py
 #  ea403cf2faf3262e3e02d1a6c7b80de6e6b7cebafa2f4cdddda929afb0f24425 37214 code/edge_policies.py
 #  59f6d4478636b2d65729523b048a1dc6fd5c1907b366171749af0afd606abd33 17443 code/fade_trend.py
 #  c966066dcc47db1d09073a9b843ea57a54a6e94f4c1ced5568e8d895ba813342 69540 code/friday_rsi.py
 #  c5edceeb6d0ab6830890f0f0205965f5b2692779ee6bf91e62c098761bceab6b 748 code/fund_qr.py
+#  1616234b4c896855ccce6ff6d67a018330b73c45415fe59f362227cbbc8c43f4 7341 code/h093.py
 #  b69de438bfd84d067c3f6e16f1e7aff4ece804829b5a1f178356256c01d57dd4 2903 code/interest_mode.py
 #  b48f9a0908fcbf06e3d7ffc4f5fdc12297a0430e2af3f1309535c9bcb84361db 2329 code/jitter_setup.py
 #  62a3168e11981cfd974ef31c44285e42d4a485c45a965032735b32c801fdec1f 3040 code/jobs_lock.py
@@ -56,7 +57,7 @@
 #  3626a60220b099a6e29ddc33a68746b57888bea893a8fdd0b8ed6fb0a3eb3932 10718 code/market_gates.py
 #  e1e2213ded6f69d3504410fc7d67202301d8b48fbb34a74ad44278d0cb7c8b34 22278 code/memecoin_mode.py
 #  5e5d0e24c43e937df1ef5ad0ccb738fcae0edfc747af4ac1b7516a3b989b2905 1462 code/mirror_guard.py
-#  1b977ef365f0b0563288d31bb0aa8e0a19f5dfc5e1d29bade03e943670234183 31214 code/morning_balance_run.py
+#  5311f53ac86de3ac372b75844e5f71a72c365cd2cfe3f25a181f4b06b7cbceef 31338 code/morning_balance_run.py
 #  8334eab48070f8ba422beba9e7a1606340c718651928d20762fd2c549dd182ac 12714 code/pair_pnl.py
 #  ed6de50fce43d5387a8969592262a36a49a559d44fce44b85f33afa919df3e47 1381 code/pause_ctl.py
 #  f58542d4728f4267c096e3c0e2e2a236ad61e688467dbe7529f1f98a3bd3af60 309 code/pc/hidden.vbs
@@ -67,12 +68,12 @@
 #  a169a1026664dfad80ac6dbceb8a314aed2638c9cc1246a339dfb8ea154fb5a1 170 code/requirements.txt
 #  4fa1717cc0fc88fad567446f6eec1c78757aab853e9aed2b08fadf6ed95e17a6 1024 code/rev_record.py
 #  0f176f71649dd42aaf247eae1901ced3d8de0fc643a157958d7fc2704ea7dd22 64823 code/savings_mode.py
-#  a345a594fd26d9bd371613f960a28c2b0ac3a9ba6e85a46a742e8802d22fb7da 6947 code/security-baseline.json
-#  68b303777e43f58b964f93e1f113d24abb30083360764e45dde87b8f440292df 15313 code/security_scan.py
+#  083d08940d40e9fc4b3f10691fd2f62eb48a057d3c846368683e24d778385985 7163 code/security-baseline.json
+#  86e4762f743282fa8e55bd6a5ee66306dfb27d90add24b0c9f7d865aaf5b1b32 15323 code/security_scan.py
 #  d96e6831ec37bcc17e5117285aed66c2c56c72308d825015617521effce6592e 10155 code/seed_prices.py
 #  7ca841238a688dd0b6a02197bcfc64f73d5fa2fd02b6e1c83614f3496d145d02 5730 code/seeds/allowed-pairs.json
 #  c9c90f4baa002df7d0fa2a64f8c7ed0345fe7c12e8d8b583f3d52153f1ce81de 191 code/seeds/cadence.json
-#  8c260cc67d6dc31815bf74a48407b538929cb4aec01828a417ad3591b8ff5c77 52075 code/seeds/cost-basis.seed.json
+#  939626f736b88cd7ff2eed787e9af1a6e49f4e6f8036996cfd2d22c223aaa049 52741 code/seeds/cost-basis.seed.json
 #  9af045a13adbb3ee1a834384a3c4e3401b58b7ce9e57097d1f40b97580d87509 198 code/seeds/reporting.json
 #  22cc9ada5858cd433fd4bccd9fc96789677a094fb572f91b1a9009e808c686b9 2161 code/setup_state.py
 #  01e6065e6c9cb3e1e6aa42a3ca92152d7e83cc59bf81767dd46b3818af0eed2d 17597 code/sol_stake.py
@@ -83,9 +84,11 @@
 #  970ea0123822a2026585b5618d8cb7f36fd38a35640d2eb0506d29ba2843d8ee 6161 code/tests/test_depfix.py
 #  b87d018541bb4a4310a3ec65d650a9a32c5e69cbf34da2f0017a143479d31dd3 3232 code/tests/test_flows_more.py
 #  30ea3c8a8a027942fe37a80ca0e7cffe9e8ffd8fa772a61c3f0c9d28f21a4a34 1298 code/tests/test_fresh_install.py
+#  9efbe2849876f8773d7236d55a610dfd1fbb1e84a872ef01db698150bcccd150 6331 code/tests/test_h093.py
 #  88ff05978772cebe5014fba74fb6bcd3b1b71f7d3f28bc84ed6c3649f5606b79 2094 code/tests/test_interest_mode.py
 #  e1374b146a93cb692d46ec85ebb30efb8d6099b1ebf1876eef075c6369d58e25 2661 code/tests/test_jup429_once.py
 #  995738581fa7b4fa17c1da24fb1c683bfedb45aeba42ad540948a1ca6fc4e05c 8589 code/tests/test_keyless.py
+#  9c6ba0c5df6d748ebd5aa0e2c1f9e032bfeb7493a45b623db4dd0aa4d9156400 2099 code/tests/test_landfix.py
 #  5332c337f570ad773b4e92c58d9a7ac0dbd619e01b3f8c0f9c408f78db7c3f59 1344 code/tests/test_late_fill_alert.py
 #  149a987c6bf4608ad51e86d22c62366450f93c34b4502ca0496fd7f6bc691898 2782 code/tests/test_late_fills.py
 #  8f58484a0728516f9578cb7bb68cdce0bf3b9d4056d32c1ab331af6134e0a2e7 4339 code/tests/test_mirror_guard.py
@@ -126,7 +129,7 @@ print('files',n,'hash_failures',bad);sys.exit(1 if bad else 0)
 
 === END FILE ===
 
-=== FILE: SETUP.md | sha256=7a96be56596dcabf8204a0d29aa569c1af87eba30803bdc7c95f08e7713abaff | bytes=33447 ===
+=== FILE: SETUP.md | sha256=9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 | bytes=34860 ===
 # Degen Trading Desk — Setup Guide (for a Grok Bot setup skill)
 
 ## Guiding principle: easiest possible setup, absolute minimum user interactions
@@ -293,6 +296,16 @@ Strict order:
 - Keyless sources (alternative.me, Kraken, Binance, Coinbase, CoinGecko) go through `keyless.py`: short backoff on 429 / 5xx / timeouts (Retry-After up to 4 s), then the next source; last-good cache with a max age (Fear & Greed 7 days, VWAP 10 min, volume shares 36 h). If every source fails and the cache is too old: VWAP -> USDC routes blocked; volume shares -> the daily rebalance skips; Fear & Greed (template v1.0.0) -> the F&G rule turns OFF (USDC trades proceed without it; the daily rebalance, which needs the F&G value, skips) and turns back ON as soon as fresh data arrives, with one `FNG_RULE_OFF` / `FNG_RULE_ON` notice per switch. Friday prices: Binance then Coinbase, then the last completed daily close; skipped only when closes are also unavailable. One `KEYLESS_WARN` line per source group per run (also in `keyless-warnings.log`, last 200 lines). Raydium already backs off on 429; Orca quotes go through Jupiter.
 - Tests: `.venv/bin/python tests/test_keyless.py` (mocked 429s, 5xx, timeouts; no network). `update_engine.py apply` runs them as part of its checks.
 
+## v1.1.1 changes
+- After a trade the bot waits up to about 30 seconds for the bought token to show up before it logs the wallet total, so the chart no longer dips when a token arrives late. If it never shows, the expected amount is logged and marked as estimated.
+- The dashboard's closest routes say "clears" only when the bot would really trade. Otherwise they show amber "close" with the reason (for example fade-trend or cooldown) and a "send failed" tag when a send didn't go through.
+
+## Optional preset: H093 (off by default)
+- Don't turn this on during setup. Mention it only if the owner asks for a more active profile in strong uptrends.
+- **On:** set `"h093": {"enabled": true}` in `cost-basis.json` (the block ships with `enabled: false`). It raises the same-pair streak cap to 5, halves skipped edges after 30 quiet checks instead of 60, caps a reversal at 60% of the prior fill instead of 85%, and moves 15% instead of 10% per daily rebalance. It also shrinks SOL/cbBTC/WETH sells into USDC while that coin is trending up (x0.5 when its 20-day average is above its 50-day average, x0.15 after a 30-day gain over 15%, both = x0.075), so winners aren't sold off too early.
+- **Off:** set `enabled` back to `false`. Every stored setting comes back unchanged, because the preset never overwrites them.
+- The minute-check log prints `H093 enabled=...` every run and `H093_DCUT` whenever a sell is cut.
+
 ## Interest mode (v1.1.0)
 
 - **One switch, off by default.** Asked once in Step 3 with savings/memecoin mode; only an explicit "yes" turns it on (`apply_features.py --interest on`). Later: `python interest_mode.py status|on|off` (the owner can just say "turn interest mode on/off").
@@ -307,7 +320,7 @@ Strict order:
 
 === END FILE ===
 
-=== FILE: TEMPLATE-NOTES.md | sha256=c6af3cd5da4a1e2843b4ebfc8c6136fd435ff251301968681a7dc7c240ad81a4 | bytes=16729 ===
+=== FILE: TEMPLATE-NOTES.md | sha256=5d666325a1c87c9cbc38f6eb341043a29fbb96b74ed91a0d24069480031dcb7d | bytes=18442 ===
 # Degen Trading Desk — Notes
 
 ## Template description
@@ -411,6 +424,12 @@ Prepared 2026-10-13 from the live bot. Local only; nothing published.
 - Any site: a Workspace account blocked by its admin, or a site region block, means switch to the step-by-step email signup or skip that service if it's optional. Answer onboarding questionnaires with the minimum ("personal / trading bot / Solana"). Never accept a paid plan or card prompt.
 - Required: Cloudflare (dashboard) and a Solana RPC (Helius preferred; Alchemy alone works). Jupiter's key is recommended, but keyless works.
 
+## v1.1.1: accurate post-fill totals, honest "clears", optional H093 preset
+- Post-fill balances: `after_bals.shows_fill` and `_edge_check_run._post_fill_moved` count a fill as landed only once the BOUGHT token shows at least half the fill (a sold-only drop is not enough). Reads retry up to ~30 s (`read_after` wait_s=30, `POST_FILL_BAL_WAIT_S=30`). If it never lands, the expected balances are logged and the trade note says "balances_after estimated (bought token not seen in reads)". Trading isn't delayed or repeated; this only changes what gets logged.
+- Closest routes: each entry in the per-check summary carries `clear_req_x` (block reasons such as fade-trend / cooldown / streak cap, required %, profit after fees, send failed). `desk_json.py` passes it to `live-closest.json` as `x`. The dashboard shows "clears" only when the shortfall is <= 0 and nothing blocks it; otherwise amber "close" plus the reason, and a "send failed" tag. The $ hurdle and "below required %" stay in the hover text only. Mobile keeps one line per route at a fixed row height. Logging only; no trade decision changed.
+- H093 preset (`h093.py`, off by default): cost-basis `h093.enabled` true = reversal cap 60%, skip-halving after 30 quiet checks, same-pair streak cap 5, daily_rebalance_v2 daily_fraction 0.15, and D sell cuts (x0.5 when MA20 > MA50 with 2-day hysteresis, x0.15 when the 30-day return is above 15% until it drops under 5%) on SOL/cbBTC/WETH -> USDC edge and reversal sells. Off = the stored settings (85/60/3/0.10), never overwritten. Daily closes come from Binance, then Coinbase, cached per UTC day in `h093-bull-state.json`; with no data, no cut.
+- Tests: `tests/test_landfix.py`, `tests/test_h093.py`.
+
 ## v1.1.0: lending, staking bucket, safety
 - Interest mode (one switch, off by default, asked at setup like savings/memecoin): Jupiter Lend USDC 50% (`degen_lend.py`) + SOL→JitoSOL 50% bucket (`sol_stake.py`), toggled together by `interest_mode.py` / cost-basis `interest_mode.enabled`. JitoSOL tracker: swap cost vs staking gain (report only). Both are counted in every balance reader, the daily and Friday rebalances, the minute check, P&L and the dashboard; withdraw/unstake runs first inside the trading job when a trade needs more than is liquid.
 - Friday rent cleanup keeps the jlUSDC and JitoSOL accounts.
@@ -458,17 +477,17 @@ DEGEN_RUN_SIDE=
 
 === END FILE ===
 
-=== FILE: code/ENGINE_VERSION.json | sha256=4eb08615f673f56db7a0aa7cfc7ea76d9b3eae6d4bb02b38e4e7b0012a401729 | bytes=507 ===
+=== FILE: code/ENGINE_VERSION.json | sha256=295b0d400221341606a71d69a8699b26c8994f69ddc9ebba3992d8551aa0abc8 | bytes=742 ===
 {
   "engine": "Degen Trading Desk",
-  "version": "1.1.0",
-  "released": "2026-10-15",
-  "notes": "Adds Jupiter Lend for USDC (half of USDC earns lending interest; on by default, off with one command), an optional SOL staking bucket in JitoSOL (off by default; opt in with one command), full accounting of both in balances, rebalances and the dashboard, a single retry on Jupiter rate limits, a mirror safety lock, APR tags and up to 8-decimal amounts on the dashboard, and a new pie-center spider image."
+  "version": "1.1.1",
+  "released": "2026-10-16",
+  "notes": "Post-fill balances now wait (up to ~30 s) for the bought token to land before the wallet total is logged, so a slow credit no longer puts a false dip in the chart (estimated totals are flagged). Each minute check now logs every close route's real block reason, required %, and profit after fees, and the dashboard shows 'clears' only when nothing blocks the trade (amber 'close' otherwise, plus a 'send failed' tag). Adds the optional H093 preset (off by default): one switch for a 60% reversal cap, halving after 30 quiet checks, a same-pair streak cap of 5, a 0.15 daily rebalance fraction and trend-based sell cuts on coin-to-USDC sells."
 }
 
 === END FILE ===
 
-=== FILE: code/_edge_check_run.py | sha256=881f9dda50a745b1413cebd472f46d9d240d8efbca552bebb76b67d4cb73e775 | bytes=197963 ===
+=== FILE: code/_edge_check_run.py | sha256=29dbd49f95faa4920441b8429c9e06cc5ce8a1998d1eda61137df7eb05b270d5 | bytes=201561 ===
 #!/usr/bin/env python3
 """Primary Solana edge check — best net of Jupiter manual, Raydium, and Orca (top-1).
 
@@ -561,6 +580,7 @@ import memecoin_mode
 import fade_trend
 import rev_record as _REV  # revflag 2026-10-11 (record-only)
 import friday_rsi
+import h093 as H093  # optional H093 preset: cost-basis h093.enabled (off by default)
 import jupiter_raydium_fallback as JRF
 import edge_policies as EP
 import pair_pnl as PP
@@ -604,7 +624,8 @@ def apply_skip_edge_halving(seh, outcome, fill_info=None, local_tradable=True):
         already = bool(seh.get("streak_halved", False))
         halved = False
         # rules1012 2026-10-11: halve after quiet_checks_to_halve (60) quiet checks, was 2.
-        _need = int(seh.get("quiet_checks_to_halve", 60) or 60)
+        import h093 as _H093  # H093 preset: 30 when cost-basis h093.enabled
+        _need = _H093.quiet_to_halve(globals().get("cb"), int(seh.get("quiet_checks_to_halve", 60) or 60))
         if quiet >= _need and not already:
             mult = mult * 0.5
             already = True
@@ -951,7 +972,7 @@ def get_balances(addr=None, commitment=None):
     # bals["cbBTC_savings"] so wallet/latch totals still include it.
     return savings_mode.trading_balances(cb, bals)
 
-POST_FILL_BAL_WAIT_S = 20.0
+POST_FILL_BAL_WAIT_S = 30.0  # 1.1.1: up to ~30s for the bought token to land
 POST_FILL_BAL_STEP_S = 2.5
 
 def _estimate_post_fill(pre, info):
@@ -963,11 +984,16 @@ def _estimate_post_fill(pre, info):
     return est
 
 def _post_fill_moved(pre, new, info):
-    """True once the sold or bought leg shows at least half the fill amount."""
+    """True once the BOUGHT leg shows at least half the fill amount (1.1.1).
+
+    A sold-only drop means the bought token is not credited yet; logging then undercounts the total."""
     sold, bought = info["sold"], info["bought"]
-    d_sold = float(pre.get(sold) or 0) - float(new.get(sold) or 0)
     d_bought = float(new.get(bought) or 0) - float(pre.get(bought) or 0)
-    return (d_sold >= 0.5 * float(info["sell_amt"] or 0) > 0) or (d_bought >= 0.5 * float(info["buy_amt"] or 0) > 0)
+    need = 0.5 * float(info["buy_amt"] or 0)
+    if need > 0:
+        return d_bought >= need
+    d_sold = float(pre.get(sold) or 0) - float(new.get(sold) or 0)
+    return d_sold >= 0.5 * float(info["sell_amt"] or 0) > 0
 
 def post_fill_balances(pre, info, addr=None):
     """Re-read after a confirmed send until the fill shows up.
@@ -1762,7 +1788,7 @@ def same_pair_streak_blocks(pair):
     st = cb.get("same_pair_streak_cap") or {}
     if not st.get("enabled", True):
         return False
-    cap = int(st.get("max_consecutive_fills", 3))
+    cap = H093.streak_cap(cb, int(st.get("max_consecutive_fills", 3)))  # H093 preset: 5 when on
     return st.get("pair") == pair and int(st.get("count") or 0) >= cap
 
 ROUTE_META = [
@@ -2078,7 +2104,10 @@ except Exception as _mg_err:
     MG = _MG.Gates(cb, fng={"value": None, "error": type(_mg_err).__name__},
                    vwap={"error": type(_mg_err).__name__})
 GREED_MULT = MG.size_mult()
-_rcc = cb.get("reversal_close_cap_pct")
+_rcc = H093.rev_cap_pct(cb)  # H093 preset: 60 when on, else stored reversal_close_cap_pct (85)
+H093_STATE = H093.load_state(cb) if H093.enabled(cb) else None
+print(f"H093 enabled={H093.enabled(cb)} state={None if H093_STATE is None else {k: (v.get('g20_50'), v.get('ret30')) for k, v in (H093_STATE.get('coins') or {}).items()}} "
+      f"src={None if H093_STATE is None else H093_STATE.get('source')} err={None if H093_STATE is None else (H093_STATE.get('error') or H093_STATE.get('stale_error'))}", flush=True)
 REVERSAL_CAP = 1.0 if _rcc is None else max(0.0, min(1.0, float(_rcc) / 100.0))
 print(f"MARKET_GATES fng={MG.fng} vwap={MG.vwap} greed_mult={GREED_MULT} reversal_cap={REVERSAL_CAP}", flush=True)
 
@@ -2129,6 +2158,10 @@ for route, pair, sold, bought, side in (ROUTE_META if not FLAT_MARKET else ()):
     sell_amt, profit_cut, sold_pnl = apply_profit_sale_cut(sold, tilted)
     if GREED_MULT != 1.0:  # FNG > 75: final x0.5 after caps/tilts/cuts
         sell_amt = sell_amt * GREED_MULT
+    _dm = H093.sell_mult(cb, sold, bought, H093_STATE)  # H093 D cut: coin->USDC edge sells
+    if _dm != 1.0:
+        print(f"H093_DCUT {route} x{_dm}", flush=True)
+        sell_amt = sell_amt * _dm
     sold_pnl_r = None if sold_pnl is None else round(sold_pnl, 4)
     skip_reason = inventory_skip_reason(sold, sell_amt, 0.05, _pt["caps"])
     if skip_reason:
@@ -2254,6 +2287,11 @@ def prepare_one_reverse(pair, info):
                 "opp_sell_amt": opp_sell_amt, "opp_sold": opp_sold, "error": "greed_cut_dust",
                 "profit_sale_cut": profit_cut,
             }, None
+    _dm = H093.sell_mult(cb, opp_sold, opp_bought, H093_STATE)  # H093 D cut: coin->USDC reversal sells
+    if _dm != 1.0:
+        print(f"H093_DCUT REV {pair} x{_dm}", flush=True)
+        opp_sell_amt = opp_sell_amt * _dm
+        sell_frac = opp_sell_amt / bal if bal > 0 else 999
     if EP.below_min_size(opp_sell_amt * float(prices.get(opp_sold) or 0), MIN_FLOOR, is_reverse=True):
         print(f"QUOTE_SKIP {route_key} min_size ${opp_sell_amt * float(prices.get(opp_sold) or 0):.2f}<${MIN_FLOOR['min_reverse_usd']}", flush=True)
         return {
@@ -3731,7 +3769,7 @@ closest_list = []
 for route, r in routes_out.items():
     if r.get("gap_net_pct") is not None:
         closest_list.append({"route": route, "gap_pct": r["gap_pct"], "gap_net_pct": r["gap_net_pct"],
-                             "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"),
+                             "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"), "clear_req_x": r.get("clear_req"),  # cblock1016 display only
                              "clears": r.get("clears"), "clears_net": r.get("clears_net"),
                              "eff_pct": r.get("eff_pct"), "edge_pct": r.get("edge_pct"),
                              "required_pct": r.get("eff_pct"),
@@ -3744,7 +3782,7 @@ for pair, items in rev_out.items():
     for r in items:
         if r.get("gap_net_pct") is not None:
             closest_list.append({"route": r.get("route_key") or f"REV:{r['rev_route']}", "gap_pct": r["gap_pct"], "gap_net_pct": r["gap_net_pct"],
-                                 "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"),
+                                 "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"), "clear_req_x": r.get("clear_req"),  # cblock1016 display only
                                  "clears": r.get("clears"), "clears_net": r.get("clears_net"), "size_ok": r.get("size_ok"),
                                  "eff_pct": r.get("eff_pct"), "edge_pct": r.get("edge_pct"),
                                  "required_pct": r.get("eff_pct"),
@@ -3980,7 +4018,8 @@ result = {
     "same_pair_streak": {
         "pair": (cb.get("same_pair_streak_cap") or {}).get("pair"),
         "count": (cb.get("same_pair_streak_cap") or {}).get("count"),
-        "max_consecutive_fills": (cb.get("same_pair_streak_cap") or {}).get("max_consecutive_fills"),
+        "max_consecutive_fills": H093.streak_cap(cb, (cb.get("same_pair_streak_cap") or {}).get("max_consecutive_fills") or 3),
+        "h093_enabled": H093.enabled(cb),
     },
     "closest": closest_list[0] if closest_list else None,
     "closest3": closest_list[:3],
@@ -4278,6 +4317,48 @@ result["held_outside_book"] = {
 
 result["market_gates"] = {"fear_greed": MG.fng, "vwap24h": MG.vwap, "greed_size_mult": GREED_MULT,
                           "reversal_cap": REVERSAL_CAP, "blocked": MG.blocked}
+def _c3_extras(items):
+    """cblock1016 (display/logging only; never alters decisions): per closest-3 route the bot's
+    block reasons, required total % and profit after fees, plus send-failed when this check's send failed."""
+    out = []
+    try:
+        failed = {str((f or {}).get("route")) for f in (globals().get("trade_fails") or []) if isinstance(f, dict)}
+    except Exception:
+        failed = set()
+    for x in items or []:
+        try:
+            cr = x.get("clear_req_x") or {}
+            lab = []
+            hu = cr.get("hurdle_usd")
+            for b in cr.get("blocks") or []:
+                b = str(b)
+                if b == "hurdle":
+                    lab.append(f"${float(hu):.2f} hurdle" if hu is not None else "hurdle")
+                elif b == "below_required_eff":
+                    lab.append("below required %")
+                elif b == "leftover_floor":
+                    lab.append("leftover floor")
+                elif b == "size":
+                    lab.append("size")
+                elif b.startswith("bad_condition"):
+                    lab.append("bad condition")
+                elif b == "route_hit_cooldown":
+                    lab.append("cooldown")
+                elif b == "any_profit_bypass_on":
+                    continue  # a bypass, not a block
+                else:
+                    lab.append(b.replace("_", " "))
+            if x.get("fade_trend_skip") and "fade-trend" not in lab:
+                lab.append("fade-trend")
+            if x.get("bad_condition_skip") and "bad condition" not in lab:
+                lab.append("bad condition")
+            out.append({"route": x.get("route"), "k": lab, "req": cr.get("required_total_pct"),
+                        "en": cr.get("edge_net_pct"), "sf": 1 if str(x.get("route")) in failed else 0})
+        except Exception:
+            out.append({"route": x.get("route") if isinstance(x, dict) else None, "k": [], "req": None, "en": None, "sf": 0})
+    return out
+
+
 # brief log append
 c3 = result.get("closest3") or []
 c3s = ", ".join(f"{x['route']} {x['gap_pct']}%/{x['gap_net_pct']}%" + (f" {x['pts_to_clear']}pts" if x.get('pts_to_clear') is not None else "") for x in c3[:3])
@@ -4399,7 +4480,7 @@ print("LOG_SUMMARY " + json.dumps({
 with open(_DH.HOME_STR + "/sol-usdc-log.md", "a", encoding="utf-8", newline="") as f:
     f.write(log_line)
 try:  # closest0 2026-10-11: live closest3 for desk.json every check (log may only get a one-liner)
-    fade_trend.atomic_write_json(_DH.HOME_STR + "/live-closest.json", {"t": now_iso, "c3": c3s})
+    fade_trend.atomic_write_json(_DH.HOME_STR + "/live-closest.json", {"t": now_iso, "c3": c3s, "x": _c3_extras(c3[:3])})
 except Exception as _lc_err:
     print(f"LIVE_CLOSEST_ERR {type(_lc_err).__name__}", flush=True)
 try:  # status1012: balance status for desk.json every balance_status_every_sec (reporting.json); never in the log
@@ -4492,7 +4573,7 @@ print("REPORT_READY", flush=True)
 
 === END FILE ===
 
-=== FILE: code/after_bals.py | sha256=e6809fd9d1d3a8d4760e2d13d3bb1727e2d19909fae8bc608d6175fd1920dd8f | bytes=3250 ===
+=== FILE: code/after_bals.py | sha256=2aec8f16e2bc16088b01f06c96ef8d105afa6464c986266dd75afcfe9814dd6c | bytes=3494 ===
 """after1012: wallet balances AFTER a fill, for trade-log rows.
 
 Reads at "confirmed" (finalized reads lag a just-confirmed send and returned the pre-run balances),
@@ -4543,15 +4624,20 @@ def computed(pre, sold, bought, sell_amt, buy_amt):
 
 
 def shows_fill(b, pre, sold, bought, sell_amt, buy_amt):
+    # 1.1.1: the BOUGHT token must have landed. A read where only the sold leg dropped
+    # (bought not credited yet) undercounts the wallet total and puts a false dip in the chart.
     try:
-        dn = float(pre.get(sold) or 0) - float(b.get(sold) or 0)
         up = float(b.get(bought) or 0) - float(pre.get(bought) or 0)
-        return dn >= 0.5 * float(sell_amt or 0) or up >= 0.5 * float(buy_amt or 0)
+        need = 0.5 * float(buy_amt or 0)
+        if need > 0:
+            return up >= need
+        dn = float(pre.get(sold) or 0) - float(b.get(sold) or 0)
+        return dn >= 0.5 * float(sell_amt or 0) > 0
     except Exception:
         return False
 
 
-def read_after(addr, pre, sold, bought, sell_amt, buy_amt, fetch=None, wait_s=24, step_s=3, sleep=time.sleep):
+def read_after(addr, pre, sold, bought, sell_amt, buy_amt, fetch=None, wait_s=30, step_s=3, sleep=time.sleep):
     """(balances, source) with source 'fresh_confirmed' or 'computed'."""
     fetch = fetch or fetch_confirmed
     t0 = time.monotonic()
@@ -6488,7 +6574,7 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/daily_rebalance_v2.py | sha256=bb304d3d7d615e743ab0da0118889ceff60a9eaa7f155a0663456ce9aaa45988 | bytes=17592 ===
+=== FILE: code/daily_rebalance_v2.py | sha256=473f5ee48a11ce6b8fe86752e0895b776c83432065b47f29bca5f0ef2103dbfa | bytes=17878 ===
 #!/usr/bin/env python3
 """Daily rebalance v2 (owner 2026-10-11) — BUILT DISABLED, planning + dry-run only.
 
@@ -6545,6 +6631,8 @@ DEFAULTS = {
 def cfg_of(cb: dict) -> dict:
     c = dict(DEFAULTS)
     c.update((cb or {}).get("daily_rebalance_v2") or {})
+    import h093 as _H093  # H093 preset: daily_fraction 0.15 when cost-basis h093.enabled
+    c["daily_fraction"] = _H093.daily_fraction(cb, c["daily_fraction"])
     return c
 
 
@@ -6828,7 +6916,8 @@ def run_morning(cb, bals, prices, dry_run=False, executor=None, fng=None, vol=No
                     res["when_pt"], f"{res['sold']}\u2192{res['bought']}", res["sold"], res["sell_amt"],
                     res["bought"], res["buy_amt"], res["fill_rate"], res["pair"], res["signature"], after, total_after,
                     f"DAILY_V2 target {p['target'][res['bought']]:.2f}% {res['bought']}; 1/10 of ${leg['full_usd']:.2f}; "
-                    f"{res.get('venue')} local signer wallet", kind=res["kind"])
+                    f"{res.get('venue')} local signer wallet"
+                     + ("" if _src == "fresh_confirmed" else "; balances_after estimated (bought token not seen in reads)"), kind=res["kind"])
             except Exception as e:
                 res["log_error"] = type(e).__name__
     if not dry_run:
@@ -6947,7 +7036,7 @@ not_found_handling = "none"
 
 === END FILE ===
 
-=== FILE: code/dashboard/bot-desk.html | sha256=199ad7979a2083071171a58cc15e23846edd44f0b39a161d87defcae048c2433 | bytes=105756 ===
+=== FILE: code/dashboard/bot-desk.html | sha256=681c210cf6ea891df8a7eb6c29545969f8db4f79c8e74cbb4d011a161554d3fa | bytes=107863 ===
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7179,6 +7268,11 @@ not_found_handling = "none"
   .bar { margin-top:5px; height:4px; background:var(--bar); border-radius:99px; overflow:hidden; }
   .bar i { display:block; height:100%; background:linear-gradient(90deg,#3ee0ff,#3dff9a); }
   .pair.hot { border-color:rgba(61,255,154,.7); box-shadow:0 0 12px rgba(61,255,154,.25); }
+  .pair.close.near, .pair.near { border-color:rgba(255,196,77,.6); box-shadow:0 0 10px rgba(255,196,77,.18); } /* cblock1016 */
+  .pair.near .bar i { background:var(--gold); }
+  .amber { color:var(--gold); }
+  #closest .pair.close .head { flex-wrap:wrap; row-gap:2px; } #closest .pair.close .who { flex:none; } #closest .pair.close .head > span:last-child { margin-left:auto; text-align:right; } /* cblock1016c */
+  .sf-tag { display:inline-block; margin-left:4px; padding:0 5px; border-radius:6px; border:1px solid #ff6b81; color:#ff6b81; font-size:10px; }
   .pair.close { border-color:rgba(62,224,255,.65); padding:8px 10px; }
   .rest .pair { display:flex; align-items:center; gap:6px; color:var(--muted); flex-wrap:wrap; }
   #mkt-price-cap .pair { font-size:19px; padding:2px 10px; }
@@ -7236,6 +7330,7 @@ not_found_handling = "none"
     header .pill, header .logo { white-space:nowrap; }
     #clock { min-width:9ch; text-align:center; }
     #closest .pair .head { flex-wrap:nowrap; } #closest .pair .who { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; } #closest .pair .head > span:last-child { flex:none; white-space:nowrap; }
+    #closest .pair.close .head { flex-wrap:wrap; row-gap:2px; } #closest .pair.close .head > span:last-child { flex:1 1 100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; font-size:11px; } /* cblock1016b; mobclosest1016: one line so the frozen row height always fits label + bar */
     svg#chart { height:160px; }
     .pie-wrap { min-height:180px; }
     svg#pie { width:180px; height:180px; }
@@ -7396,6 +7491,18 @@ let memeOn=false; /* template: off until a check says otherwise */
 let savModeOn=false;
 function savOn(){ return memeOn||savModeOn; }
 function closestHasC(x){ return x&&x.c!=null&&Number.isFinite(Number(x.c)); }
+// cblock1016: "clears" only when shortfall <= 0 AND the bot reports no block; else amber "close" + reason
+function closestState(x){
+  const hasC=closestHasC(x), blk=Array.isArray(x.k)?x.k:[], sf=!!x.sf;
+  const clears=hasC&&Number(x.c)<=0&&!blk.length&&!sf;
+  const parts=[];
+  if(hasC&&Number(x.c)>0) parts.push(Number(x.c).toFixed(3)+"% short");
+  else if(!hasC) parts.push("—");
+  for(const b of blk) if(!/hurdle$/i.test(String(b))&&String(b)!=="below required %") parts.push(b);  // nohurdle1016: hurdle / below-required not shown
+  const short=hasC?Math.max(0,Number(x.c)):null;
+  const near=!clears&&hasC&&short<=.35;
+  return {clears, near, sf, short, lbl:clears?"clears":parts.join(" · ")};
+}
 function closestShort(x){ return closestHasC(x)?Math.max(0,Number(x.c)):Math.max(0,-Number(x.b??x.a??0)); }
 function closestKey(x){ return marketKey(x)+(x.fill?":fill":""); }
 function balOf(bag, name){
@@ -7457,7 +7564,7 @@ function parseDesk(d){
   let chk=null;
   if(c){
     for(const k of Object.keys(c.b||{})) bal[sym(k)]={amount:c.b[k][0],usd:c.b[k][1]};
-    const it=(c.i||[]).map(x=>({rev:!!x[0],from:sym(x[1]),to:sym(x[2]),a:x[3],b:x[4],c:x.length>5?x[5]:null}));
+    const it=(c.i||[]).map(x=>({rev:!!x[0],from:sym(x[1]),to:sym(x[2]),a:x[3],b:x[4],c:x.length>5?x[5]:null,k:Array.isArray(x[6])?x[6]:[],req:x.length>7?x[7]:null,en:x.length>8?x[8]:null,sf:x.length>9?!!x[9]:false}));
     it.forEach(rememberPair);
     const sv=c.sv||[];
     chk={time:c.t||"",bt:c.bt||c.t||"",status:c.s||"",addr:c.a||"",bal,total:c.T??null,unrealPct:c.u??null,funded:c.f??null,savings:{jito:sv[0]??null,jitoUsd:sv[1]??null,goat:sv[2]??null,goatUsd:sv[3]??null},bias:c.bi?{least:sym(c.bi[0]),most:sym(c.bi[1])}:null,items:it,itemsTime:c.it||"",itemsHeld:!!c.ih,next:c.nx||"",lend:Array.isArray(c.ln)?{apr:Number(c.ln[0]),lent:Number(c.ln[1])}:null,stake:Array.isArray(c.js)?{apr:Number(c.js[0]),lent:Number(c.js[1])}:null};
@@ -7714,9 +7821,10 @@ function paint(){
   const closestHtml=top.map(x=>{
     const k=marketKey(x);
     if(x.fill) return `<div class="pair close" data-key="${esc(k)}" data-window="1"><div class="head"><span class="who">${pairWho(x.from,x.to,false)}</span><span>${x.time?esc(x.time.slice(5,16).replace("T"," ")):"last fill"}</span></div></div>`;
-    const hasC=closestHasC(x), short=closestShort(x), near=short<=.35;
-    const lbl=short<=0?"clears":short.toFixed(3)+"% short";
-    return `<div class="pair close ${near?"hot":""}" data-key="${esc(k)}" data-window="1"><div class="head"><span class="who">${pairWho(x.from,x.to,x.rev)}</span><span class="${near?"up":"down"}">${lbl}</span></div><div class="bar"><i style="width:${Math.max(0,Math.min(100,100-short*33)).toFixed(1)}%"></i></div></div>`;
+    const S=closestState(x), short=S.short==null?3.1:S.short;
+    const cls=S.clears?"hot":(S.near?"near":"");
+    const tip=` title="${esc(S.lbl)}${(x.req!=null||x.en!=null)?` · needs ${x.req==null?"?":Number(x.req).toFixed(3)+"%"} · has ${x.en==null?"?":Number(x.en).toFixed(3)+"%"} after fees`:""}"`;  // mobclosest1016
+    return `<div class="pair close ${cls}" data-key="${esc(k)}" data-window="1"${tip}><div class="head"><span class="who">${pairWho(x.from,x.to,x.rev)}</span><span class="${S.clears?"up":(S.near?"amber":"down")}">${esc(S.lbl)}${S.sf?' <span class="sf-tag">send failed</span>':""}</span></div><div class="bar"><i style="width:${Math.max(0,Math.min(100,100-short*33)).toFixed(1)}%"></i></div></div>`;
   }).join("");
   const hasRevFlag = rows.some(r => r.rev !== undefined);
   const isRevFlags = rows.map(r => hasRevFlag ? !!r.rev : false);
@@ -7761,7 +7869,7 @@ function paint(){
   else if(seen.tape!==tapeHtml && !newTrade) noteUpdate("w-trades", latest?keyOf(latest.sold_asset,latest.bought_asset):"trade", ()=>applyBox("tape", tapeHtml, "tape"), tapeHtml);
   if(!seen.pairs){ document.getElementById("closest").innerHTML=closestHtml; seen.pairs=pairsKey; }
   else if(newTrade){ pendingClosest=closestHtml; pendingPairsKey=pairsKey; }
-  else if(seen.pairs!==pairsKey && pendingSig["w-pairs"]!==pairsKey) noteUpdate("w-pairs", top[0]?(top[0].fill?keyOf(top[0].from,top[0].to):keyOf(top[0].from,top[0].to)+" "+(top[0].a==null&&!closestHasC(top[0])?"":(closestShort(top[0])<=0?"clears":closestShort(top[0]).toFixed(3)+"% short"))):"pairs", ()=>animateClosest(closestHtml, pairsKey), pairsKey);
+  else if(seen.pairs!==pairsKey && pendingSig["w-pairs"]!==pairsKey) noteUpdate("w-pairs", top[0]?(top[0].fill?keyOf(top[0].from,top[0].to):keyOf(top[0].from,top[0].to)+" "+(top[0].a==null&&!closestHasC(top[0])?"":closestState(top[0]).lbl)):"pairs", ()=>animateClosest(closestHtml, pairsKey), pairsKey);
   if(seen.mode && seen.mode!==statusText) noteUpdate("w-head", statusText, null, statusText);
   seen.mode=statusText;
   if(newTrade){ pendingStats=statsHtml; pendingVol=volHtml; pendingTape=tapeHtml; pendingPie=pieKey; pendingBal=JSON.parse(JSON.stringify(bal)); }
@@ -7788,7 +7896,7 @@ function mobFreeze(){
   pin("#w-trades .chart-row",document.querySelector("#w-trades .chart-row"),"overflow:hidden!important;");
   pin("#tape",$("tape"),"flex:none!important;overflow-x:hidden!important;overflow-y:auto!important;");
   pin("#w-trades",$("w-trades"),"overflow:hidden!important;");
-  { const cl=$("closest"); if(cl){ [...cl.children].forEach((c,i)=>css.push(`#closest>.pair:nth-child(${i+1}){height:${px(H(c))}!important;box-sizing:border-box!important;overflow:hidden!important;}`)); pin("#closest",cl,"overflow:hidden!important;align-content:start!important;"); } }
+  { const cl=$("closest"); if(cl){ [...cl.children].forEach((c,i)=>css.push(`#closest>.pair:nth-child(${i+1}){height:${px(Math.max(H(c),c.classList.contains("close")?62:0))}!important;box-sizing:border-box!important;overflow:hidden!important;}`)); pin("#closest",cl,"overflow:hidden!important;align-content:start!important;"); } }
   pin("#checkMeta",$("checkMeta"),"overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;");
   pin("#w-pairs .pairs-fixed",document.querySelector("#w-pairs .pairs-fixed"),"overflow:hidden!important;flex:none!important;");
   pin("#mkt-window",$("mkt-window"),"flex:none!important;overflow-x:hidden!important;overflow-y:auto!important;");
@@ -7800,7 +7908,8 @@ function mobFreeze(){
 if(isMobile){
   const t0=Date.now();
   const ready=()=>{ const s=document.getElementById("stats"), m=document.getElementById("mkt-price-cap"), t=document.getElementById("tape");
-    return s&&s.children.length&&t&&t.children.length&&m&&m.children.length; };
+    const cl=document.getElementById("closest");  // mobclosest1016: also wait for the closest-3 rows
+    return s&&s.children.length&&t&&t.children.length&&m&&m.children.length&&cl&&cl.querySelectorAll(".pair").length>=3; };
   const tryFreeze=()=>{ if(mobFrozen) return;
     if((ready()&&!(typeof busy==="function"&&busy()))||Date.now()-t0>15000){ (document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>requestAnimationFrame(()=>requestAnimationFrame(mobFreeze))); }
     else setTimeout(tryFreeze,300); };
@@ -10448,7 +10557,7 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/desk_json.py | sha256=699df641485b86bee2c1e5e125ae4f1d9de2eac56db7d62b85a303237fa25658 | bytes=18093 ===
+=== FILE: code/desk_json.py | sha256=c7f2f52a4bab31e5a3c68ed364e8ddbad5ec00a8b5179c6ea247395f4ef2c745 | bytes=18489 ===
 #!/usr/bin/env python3
 """Build desk.json: the only data file bot-desk.html loads (deskjson 2026-10-11).
 
@@ -10625,6 +10734,13 @@ def live_closest(log_time: str, path: Path | None = None):
     if not t or not log_time or t < log_time:
         return None
     items = closest("- closest3: " + line)
+    # cblock1016: per-route extras [.., c, blocks, required%, profit_after_fees%, send_failed]
+    xs = d.get("x") if isinstance(d.get("x"), list) else []
+    for it, x in zip(items, xs):
+        if isinstance(x, dict):
+            while len(it) < 6:
+                it.append(None)
+            it += [[str(k) for k in (x.get("k") or [])][:4], x.get("req"), x.get("en"), 1 if x.get("sf") else 0]
     return (items, t) if items else None
 
 
@@ -14159,6 +14275,189 @@ if __name__ == "__main__":
 
 === END FILE ===
 
+=== FILE: code/h093.py | sha256=1616234b4c896855ccce6ff6d67a018330b73c45415fe59f362227cbbc8c43f4 | bytes=7341 ===
+"""H093 preset (optional, OFF by default). One switch: cost-basis.json h093.enabled.
+
+enabled true  -> reversal cap 60%, skip-halving after 30 quiet checks, same-pair streak cap 5,
+                 daily_rebalance_v2 daily_fraction 0.15, and the D sell cuts below.
+enabled false -> every value comes from the stored settings: 85 / 60 / 3 / 0.10, no D cuts.
+The stored settings in cost-basis.json are never overwritten, so turning it off restores them.
+The daily-rebalance reversal cap (50%) and the Friday caps are not part of H093.
+
+D sell cuts (trend filters on completed UTC daily closes; a state decided at day d's close applies on day d+1):
+  g20_50 : MA20(close) > MA50(close) (min_periods=1), hysteresis: on after 2 straight true days,
+           off after 2 straight false days.  -> x0.5
+  ret30  : close/close[30 days earlier]-1; on when > 0.15, off when < 0.05.  -> x0.15
+  both   : multiply (x0.075). Applies only to edge (basis) and reversal sells of SOL/cbBTC/WETH
+           into USDC. Not daily rebalance, not Friday, not cross-pair trades.
+If daily closes can't be fetched and no state from the last 2 days is cached, no cut is applied.
+Turn on: set "h093": {"enabled": true} in cost-basis.json.
+"""
+import json, os, time
+
+import degen_home as _DH
+
+STATE = os.path.join(_DH.HOME_STR, "h093-bull-state.json")
+COINS = ("SOL", "cbBTC", "WETH")
+DEFAULTS = {"enabled": False, "reversal_close_cap_pct": 60, "quiet_checks_to_halve": 30,
+            "max_consecutive_fills": 5, "daily_fraction": 0.15,
+            "d_cut": {"g20_50_mult": 0.5, "ret30_mult": 0.15, "ret30_on": 0.15, "ret30_off": 0.05}}
+
+
+def cfg(cb):
+    c = json.loads(json.dumps(DEFAULTS))
+    c.update({k: v for k, v in ((cb or {}).get("h093") or {}).items() if k != "d_cut"})
+    c["d_cut"].update(((cb or {}).get("h093") or {}).get("d_cut") or {})
+    return c
+
+
+def enabled(cb):
+    return bool(((cb or {}).get("h093") or {}).get("enabled", False))
+
+
+def rev_cap_pct(cb):
+    return cfg(cb)["reversal_close_cap_pct"] if enabled(cb) else (cb or {}).get("reversal_close_cap_pct")
+
+
+def quiet_to_halve(cb, stored):
+    return int(cfg(cb)["quiet_checks_to_halve"]) if enabled(cb) else int(stored)
+
+
+def streak_cap(cb, stored):
+    return int(cfg(cb)["max_consecutive_fills"]) if enabled(cb) else int(stored)
+
+
+def daily_fraction(cb, stored):
+    return float(cfg(cb)["daily_fraction"]) if enabled(cb) else float(stored)
+
+
+# ---- D cut state (pure functions) ----
+def _ma(c, n, j):
+    w = c[max(0, j - n + 1): j + 1]
+    return sum(w) / len(w)
+
+
+def _hyst(cond, kon=2, koff=2):
+    st = False; on = off = 0; out = []
+    for x in cond:
+        if x: on += 1; off = 0
+        else: off += 1; on = 0
+        if not st and on >= kon: st = True
+        elif st and off >= koff: st = False
+        out.append(st)
+    return out
+
+
+def _band(vals, on, off):
+    st = False; out = []
+    for v in vals:
+        if v is not None and not st and v > on: st = True
+        elif v is not None and st and v < off: st = False
+        out.append(st)
+    return out
+
+
+def states_from_closes(closes, ret_on=0.15, ret_off=0.05):
+    """closes: completed UTC daily closes, oldest first. Returns (g20_50, ret30) state for the next day."""
+    if not closes:
+        return False, False
+    g = _hyst([_ma(closes, 20, j) > _ma(closes, 50, j) for j in range(len(closes))])
+    r = _band([(closes[j] / closes[j - 30] - 1) if j >= 30 else None for j in range(len(closes))], ret_on, ret_off)
+    return bool(g[-1]), bool(r[-1])
+
+
+def _utc_day(t=None):
+    return int((time.time() if t is None else t) // 86400)
+
+
+def _get(url, timeout=6):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "degen-h093"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode())
+
+
+def fetch_closes():
+    """Completed UTC daily closes (oldest first), Binance USDT then Coinbase USD. Short timeouts."""
+    errs = []
+    now_ms = int(time.time() * 1000)
+    try:
+        out = {}
+        for a, sym in (("SOL", "SOLUSDT"), ("cbBTC", "BTCUSDT"), ("WETH", "ETHUSDT")):
+            rows = _get(f"https://api.binance.com/api/v3/klines?symbol={sym}&interval=1d&limit=120")
+            out[a] = [float(r[4]) for r in rows if int(r[6]) < now_ms]
+        return out, "binance", errs
+    except Exception as e:
+        errs.append(f"binance:{type(e).__name__}")
+    try:
+        out = {}
+        for a, prod in (("SOL", "SOL-USD"), ("cbBTC", "BTC-USD"), ("WETH", "ETH-USD")):
+            rows = _get(f"https://api.exchange.coinbase.com/products/{prod}/candles?granularity=86400")
+            done = sorted((float(r[0]), float(r[4])) for r in rows if float(r[0]) + 86400 <= time.time())
+            out[a] = [c for _, c in done]
+        return out, "coinbase", errs
+    except Exception as e:
+        errs.append(f"coinbase:{type(e).__name__}")
+    return None, None, errs
+
+
+def load_state(cb, fetch=None, now=None):
+    """Cached per UTC day. fetch() -> ({sym: closes}, source, errors)."""
+    day = _utc_day(now)
+    try:
+        with open(STATE, encoding="utf-8") as f:
+            st = json.load(f)
+    except Exception:
+        st = None
+    if st and st.get("utc_day") == day:
+        return st
+    c = cfg(cb)["d_cut"]
+    try:
+        if st and st.get("fail_day") == day and (time.time() if now is None else now) - float(st.get("fail_at") or 0) < 1800:
+            raise RuntimeError("retry_wait")  # failed fetch: retry at most every 30 min
+        if fetch is None:
+            fetch = fetch_closes
+        closes, src, errs = fetch()
+        if not closes or any(len(closes.get(a) or []) < 50 for a in COINS):
+            raise RuntimeError(f"closes_short src={src} errs={errs}")
+        coins = {}
+        for a in COINS:
+            g, r = states_from_closes(closes[a], c["ret30_on"], c["ret30_off"])
+            coins[a] = {"g20_50": g, "ret30": r, "n": len(closes[a]), "last_close": closes[a][-1]}
+        new = {"utc_day": day, "source": src, "coins": coins, "fetched": int(time.time() if now is None else now)}
+        tmp = STATE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(new, f, indent=1)
+        os.replace(tmp, STATE)
+        return new
+    except Exception as e:
+        if str(e) != "retry_wait":
+            try:
+                keep = dict(st or {}); keep.update(fail_day=day, fail_at=int(time.time() if now is None else now))
+                with open(STATE + ".tmp", "w", encoding="utf-8") as f:
+                    json.dump(keep, f, indent=1)
+                os.replace(STATE + ".tmp", STATE)
+            except Exception:
+                pass
+        if st and day - int(st.get("utc_day", -99)) <= 2:
+            st = dict(st); st["stale_error"] = f"{type(e).__name__}: {e}"[:200]
+            return st
+        return {"utc_day": day, "coins": {}, "error": f"{type(e).__name__}: {e}"[:200]}
+
+
+def sell_mult(cb, sold, bought, state):
+    """Multiplier for an edge/reversal sell of `sold` into `bought`. 1.0 when off or not applicable."""
+    if not enabled(cb) or bought != "USDC" or sold not in COINS:
+        return 1.0
+    s = ((state or {}).get("coins") or {}).get(sold) or {}
+    c = cfg(cb)["d_cut"]
+    m = 1.0
+    if s.get("g20_50"): m *= float(c["g20_50_mult"])
+    if s.get("ret30"): m *= float(c["ret30_mult"])
+    return m
+
+=== END FILE ===
+
 === FILE: code/interest_mode.py | sha256=b69de438bfd84d067c3f6e16f1e7aff4ece804829b5a1f178356256c01d57dd4 | bytes=2903 ===
 #!/usr/bin/env python3
 """Interest mode (template v1.1.0): ONE switch for both earning sides, like savings / memecoin mode.
@@ -16094,7 +16393,7 @@ def check(name: str, home: Path | None = None) -> None:
 
 === END FILE ===
 
-=== FILE: code/morning_balance_run.py | sha256=1b977ef365f0b0563288d31bb0aa8e0a19f5dfc5e1d29bade03e943670234183 | bytes=31214 ===
+=== FILE: code/morning_balance_run.py | sha256=5311f53ac86de3ac372b75844e5f71a72c365cd2cfe3f25a181f4b06b7cbceef | bytes=31338 ===
 #!/usr/bin/env python3
 """Daily morning wallet check. Morning 5% top-up re-enabled 2026-10-10.
 
@@ -16571,7 +16870,8 @@ def do_underweight(cb, bals, prices, dry_run=False, executor=None):
                     res["bought"], res["buy_amt"], res["fill_rate"], res["pair"], res["signature"],
                     after, total_after,
                     f"UNDERWEIGHT_DOUBLE {row['target']} was {row['pct']:.2f}% of book; "
-                    f"{res.get('venue')} local signer wallet; remainder_usd {row['remainder_usd']}",
+                    f"{res.get('venue')} local signer wallet; remainder_usd {row['remainder_usd']}"
+                     + ("" if _src == "fresh_confirmed" else "; balances_after estimated (bought token not seen in reads)"),
                     kind="underweight_double",
                 )
             except Exception as e:
@@ -19092,13 +19392,14 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/security-baseline.json | sha256=a345a594fd26d9bd371613f960a28c2b0ac3a9ba6e85a46a742e8802d22fb7da | bytes=6947 ===
+=== FILE: code/security-baseline.json | sha256=083d08940d40e9fc4b3f10691fd2f62eb48a057d3c846368683e24d778385985 | bytes=7163 ===
 {
-"engine": "1.1.0",
+"engine": "1.1.1",
 "lines": [
 "0061eab649e6f424dbec",
 "0095a3c92c8ecb8ae77d",
 "00f747b41e27d99514fc",
+"021dc4afa4d24a451136",
 "029094f420088eae07f8",
 "02f1ec9f4c18c39b5f62",
 "045e3c1129b934731103",
@@ -19143,6 +19444,7 @@ if __name__ == "__main__":
 "274fb72e1ef00097d817",
 "2a5dbeeda8122b82fba2",
 "2b410e42ed5759fa88a7",
+"2b4aa11867fd0fedcc06",
 "2b8e2f63cfc7a945f453",
 "2b971fc60c64a9594cc6",
 "2ba65c9a1532bcf8ecf3",
@@ -19151,6 +19453,7 @@ if __name__ == "__main__":
 "2d13861f2d804b9da779",
 "2e501daa89b395b35005",
 "2eb245f3080ca218c246",
+"32ab9fc57e1f5bdfb2cf",
 "333660ca55e9306a81df",
 "337ce45bbcda77917cab",
 "33e6634b910bab2a6b60",
@@ -19171,9 +19474,11 @@ if __name__ == "__main__":
 "44f6430b4245012801c9",
 "45bfd86c8ea0554e0e01",
 "461f941ec744f6e49d1e",
+"49395670a404afccd9e3",
 "495979f792e680edacb3",
 "4bbf143b2dda59016d2c",
 "4caa728326f12d47ae62",
+"4d65375f743b829e5dfa",
 "4db921962501b6a832d4",
 "4e813c2427c820419af9",
 "4fd57f134f6127cbc395",
@@ -19217,6 +19522,7 @@ if __name__ == "__main__":
 "6dd26b6f4127310967cc",
 "6dea01b0b5f05531a5df",
 "6ed2dd933fda0dc55cfb",
+"6fd2ccb1ea90577551a9",
 "70d1c00ad9055685e959",
 "72722fdf6ddd24f6d082",
 "7447f1f062011923cdff",
@@ -19260,6 +19566,7 @@ if __name__ == "__main__":
 "9bfc1b32758e766ae5a0",
 "9e1dac7f75a8ddf4c36b",
 "9e200e954de1ccbe4e41",
+"9e5966a7361d95a78432",
 "9e853528d255ad8f4ca3",
 "9f2b3d935261b32a0dfb",
 "a07d992addbd495ad011",
@@ -19290,6 +19597,7 @@ if __name__ == "__main__":
 "b71c6fed9f2c8d23d745",
 "b8bcdd7bd940ee7e788a",
 "b95deb7b09d5877898c7",
+"ba1fede96ce37c81cfae",
 "bc4291060d6522305d61",
 "bc557f63ae870c7d207f",
 "bc6e8b6cf30156015518",
@@ -19348,6 +19656,7 @@ if __name__ == "__main__":
 "e35df93cdbab4ed49f44",
 "e513f4e6c81a59c92158",
 "e578dc905096065582e7",
+"e5e6d70086f7c4b35792",
 "e60edf193d54fad0cfc0",
 "e64ab52fddee93f8a53f",
 "e678d6c30528b0046405",
@@ -19389,7 +19698,7 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/security_scan.py | sha256=68b303777e43f58b964f93e1f113d24abb30083360764e45dde87b8f440292df | bytes=15313 ===
+=== FILE: code/security_scan.py | sha256=86e4762f743282fa8e55bd6a5ee66306dfb27d90add24b0c9f7d865aaf5b1b32 | bytes=15323 ===
 #!/usr/bin/env python3
 """Pre-install / pre-update security check (template). Stdlib only; never prints secrets; sends nothing.
 
@@ -19406,7 +19715,7 @@ engine's own lines are trusted too, and a short plain summary of what changed is
 import base64, hashlib, json, re, sys
 from pathlib import Path
 
-# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 ----
+# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 ----
 TRUSTED_DOMAINS = {
     "alternative.me", "api.alternative.me", "api.binance.com", "api.cloudflare.com", "api.coingecko.com",
     "api.exchange.coinbase.com", "api.geckoterminal.com", "api.jup.ag", "api.kraken.com",
@@ -19429,7 +19738,7 @@ TRUSTED_ADDRESSES = {
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
 }
-ENGINE_FOR_BASELINE = "1.1.0"
+ENGINE_FOR_BASELINE = "1.1.1"
 BASELINE_FILE = "security-baseline.json"  # hashes of the risky-looking lines that shipped in 1.0.0
 
 CHECKS = [  # (category, plain label, regex)
@@ -20064,7 +20373,7 @@ if __name__ == "__main__":
 }
 === END FILE ===
 
-=== FILE: code/seeds/cost-basis.seed.json | sha256=8c260cc67d6dc31815bf74a48407b538929cb4aec01828a417ad3591b8ff5c77 | bytes=52075 ===
+=== FILE: code/seeds/cost-basis.seed.json | sha256=939626f736b88cd7ff2eed787e9af1a6e49f4e6f8036996cfd2d22c223aaa049 | bytes=52741 ===
 {
   "method": "per_pair_rate_basis",
   "solana_rpc_order": "helius, alchemy, public",
@@ -20882,6 +21191,20 @@ if __name__ == "__main__":
   "interest_mode": {
     "enabled": false,
     "rule": "OFF by default; asked once at setup (apply_features.py --interest on|off) or toggled with interest_mode.py on|off. One switch for both sides: half of the bot's USDC lent on Jupiter Lend (Earn) as jlUSDC (degen_lend.py, lend-config.json) and half of trading SOL (wallet SOL minus reserve_sol 0.05) held as JitoSOL in a separate bucket (sol_stake.py, sol-stake-config.json), never mixed with savings JitoSOL. Lent USDC counts as USDC and the bucket counts as SOL in every balance reader, rebalance, the minute check, P&L and the dashboard. A swap that needs more than is liquid withdraws / swaps back first inside the trading job, then resets to 50/50. Idle rule at the end of each check: liquid above 70% and excess at least 10% of that asset's total (floor $10, cap $500) goes back in. Turning it off withdraws all USDC and swaps the bucket back to SOL on the next check. The Friday empty-account cleanup never closes the jlUSDC or JitoSOL accounts. Each bucket swap costs a little (spread and fees); sol_stake tracker shows swap cost vs staking gain."
+  },
+  "h093": {
+    "enabled": false,
+    "note": "Optional H093 preset (off by default). enabled true = reversal cap 60, skip-halving after 30 quiet checks, same-pair streak cap 5, daily_fraction 0.15, and D sell cuts on SOL/cbBTC/WETH->USDC edge and reversal sells in uptrends. enabled false = the stored settings (85/60/3/0.10), no D cuts. Stored settings are never overwritten, so turning it off restores them.",
+    "reversal_close_cap_pct": 60,
+    "quiet_checks_to_halve": 30,
+    "max_consecutive_fills": 5,
+    "daily_fraction": 0.15,
+    "d_cut": {
+      "g20_50_mult": 0.5,
+      "ret30_mult": 0.15,
+      "ret30_on": 0.15,
+      "ret30_off": 0.05
+    }
   }
 }
 
@@ -22982,6 +23305,133 @@ if __name__ == "__main__":
 
 === END FILE ===
 
+=== FILE: code/tests/test_h093.py | sha256=9efbe2849876f8773d7236d55a610dfd1fbb1e84a872ef01db698150bcccd150 | bytes=6331 ===
+"""1.1.1: optional H093 preset (off by default). Pure functions plus the cost-basis switch."""
+import os, sys, tempfile
+from pathlib import Path
+_HERE = Path(__file__).resolve().parent
+if _HERE.name == "tests":  # template layout: isolated paper-mode home; code lives one folder up
+    _TMP = tempfile.mkdtemp(prefix="degen-test-")
+    os.environ["DEGEN_HOME"] = _TMP
+    os.environ.setdefault("PAPER_TRADING", "true")
+    Path(_TMP, ".env").write_text("HELIUS_RPC_URL=https://rpc.invalid/test\nPAPER_TRADING=true\n")
+    sys.path.insert(0, str(_HERE.parent)); os.chdir(str(_HERE.parent))
+import json, os, tempfile, unittest
+import h093 as H
+
+
+def series(f, n=100):
+    return [f(i) for i in range(n)]
+
+
+class TestSwitch(unittest.TestCase):
+    OLD = {"reversal_close_cap_pct": 85, "same_pair_streak_cap": {"max_consecutive_fills": 3},
+           "daily_rebalance_v2": {"daily_fraction": 0.1, "reversal_cap_pct": 50}}
+
+    def test_off_gives_old_values(self):
+        cb = dict(self.OLD, h093={"enabled": False})
+        self.assertEqual(H.rev_cap_pct(cb), 85)
+        self.assertEqual(H.quiet_to_halve(cb, 60), 60)
+        self.assertEqual(H.streak_cap(cb, 3), 3)
+        self.assertEqual(H.daily_fraction(cb, 0.1), 0.1)
+        self.assertEqual(H.sell_mult(cb, "SOL", "USDC", {"coins": {"SOL": {"g20_50": True, "ret30": True}}}), 1.0)
+
+    def test_missing_block_is_off(self):
+        self.assertFalse(H.enabled(self.OLD)); self.assertEqual(H.rev_cap_pct(self.OLD), 85)
+
+    def test_on_gives_h093_values(self):
+        cb = dict(self.OLD, h093={"enabled": True})
+        self.assertEqual(H.rev_cap_pct(cb), 60)
+        self.assertEqual(H.quiet_to_halve(cb, 60), 30)
+        self.assertEqual(H.streak_cap(cb, 3), 5)
+        self.assertEqual(H.daily_fraction(cb, 0.1), 0.15)
+
+    def test_daily_v2_fraction_and_caps_untouched(self):
+        import daily_rebalance_v2 as D
+        on = D.cfg_of(dict(self.OLD, h093={"enabled": True}))
+        off = D.cfg_of(dict(self.OLD, h093={"enabled": False}))
+        self.assertEqual((on["daily_fraction"], off["daily_fraction"]), (0.15, 0.1))
+        self.assertEqual((on["reversal_cap_pct"], off["reversal_cap_pct"]), (50, 50))
+
+
+class TestDCut(unittest.TestCase):
+    ON = {"h093": {"enabled": True}}
+
+    def st(self, g, r):
+        return {"coins": {"SOL": {"g20_50": g, "ret30": r}}}
+
+    def test_multipliers(self):
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "USDC", self.st(False, False)), 1.0)
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "USDC", self.st(True, False)), 0.5)
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "USDC", self.st(False, True)), 0.15)
+        self.assertAlmostEqual(H.sell_mult(self.ON, "SOL", "USDC", self.st(True, True)), 0.075)
+
+    def test_only_coin_to_usdc(self):
+        s = self.st(True, True)
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "WETH", s), 1.0)
+        self.assertEqual(H.sell_mult(self.ON, "USDC", "SOL", s), 1.0)
+
+    def test_no_state_no_cut(self):
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "USDC", None), 1.0)
+        self.assertEqual(H.sell_mult(self.ON, "SOL", "USDC", {"coins": {}}), 1.0)
+
+    def test_g20_50_hysteresis(self):
+        up = series(lambda i: 100 + i)            # rising: MA20 > MA50 after day 2
+        self.assertTrue(H.states_from_closes(up)[0])
+        one = series(lambda i: 100.0)             # flat: MA20 == MA50, never on
+        self.assertFalse(H.states_from_closes(one)[0])
+        # one false day does not switch off; two do
+        g = H._hyst([True, True, True, False]); self.assertEqual(g[-1], True)
+        g = H._hyst([True, True, True, False, False]); self.assertEqual(g[-1], False)
+        g = H._hyst([False, True]); self.assertEqual(g[-1], False)
+
+    def test_ret30_band(self):
+        c = [100.0] * 60 + [120.0] * 5            # +20% vs 30d ago -> on
+        self.assertTrue(H.states_from_closes(c)[1])
+        c2 = c + [108.0] * 30                     # +8% vs 30d ago... (vs 120 it is -10%) -> off below 5%
+        self.assertFalse(H.states_from_closes(c2)[1])
+        b = H._band([0.2, 0.10, 0.06], 0.15, 0.05); self.assertEqual(b, [True, True, True])   # stays on 5-15%
+        b = H._band([0.2, 0.04], 0.15, 0.05); self.assertEqual(b, [True, False])
+        b = H._band([0.10], 0.15, 0.05); self.assertEqual(b, [False])
+
+    def test_load_state_cache_and_fallback(self):
+        d = tempfile.mkdtemp(); old = H.STATE; H.STATE = os.path.join(d, "s.json")
+        try:
+            calls = []
+            def fetch():
+                calls.append(1); return {a: [100.0 + i for i in range(80)] for a in H.COINS}, "t", []
+            s1 = H.load_state(self.ON, fetch=fetch, now=86400 * 10 + 5)
+            s2 = H.load_state(self.ON, fetch=fetch, now=86400 * 10 + 500)
+            self.assertEqual(len(calls), 1); self.assertTrue(s1["coins"]["SOL"]["g20_50"]); self.assertEqual(s1, s2)
+            def bad(): raise OSError("down")
+            s3 = H.load_state(self.ON, fetch=bad, now=86400 * 11 + 5)      # next day, fetch fails -> cached (<=2d)
+            self.assertTrue(s3["coins"]["SOL"]["g20_50"]); self.assertIn("stale_error", s3)
+            s4 = H.load_state(self.ON, fetch=fetch, now=86400 * 11 + 60)   # within 30 min of failure: no refetch
+            self.assertEqual(len(calls), 1)
+            s5 = H.load_state(self.ON, fetch=bad, now=86400 * 20)          # too old -> no cut
+            self.assertEqual(s5["coins"], {})
+            short = lambda: ({a: [1.0] * 10 for a in H.COINS}, "t", [])
+            H.STATE = os.path.join(d, "s2.json")
+            self.assertEqual(H.load_state(self.ON, fetch=short, now=5)["coins"], {})
+        finally:
+            H.STATE = old
+
+    def test_hooks_present(self):
+        e = open("_edge_check_run.py", encoding="utf-8").read()
+        self.assertIn("_H093.quiet_to_halve(globals().get(\"cb\")", e); self.assertIn("H093.streak_cap(cb", e)
+        self.assertIn("_rcc = H093.rev_cap_pct(cb)", e)
+        self.assertEqual(e.count("H093.sell_mult(cb"), 2)
+        self.assertIn("H093.sell_mult(cb, opp_sold, opp_bought", e)
+        # daily_v2 reversal cap path and Friday unchanged
+        self.assertIn("_REV.reversal_cap(info.get(\"kind\"), REVERSAL_CAP, cb)", e)
+        self.assertNotIn("H093", open("friday_rsi.py", encoding="utf-8").read())
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+=== END FILE ===
+
 === FILE: code/tests/test_interest_mode.py | sha256=88ff05978772cebe5014fba74fb6bcd3b1b71f7d3f28bc84ed6c3649f5606b79 | bytes=2094 ===
 #!/usr/bin/env python3
 """v1.1.0 interest mode: one switch for USDC lending + the JitoSOL bucket; off by default; apply_features
@@ -23229,6 +23679,49 @@ from zoneinfo import ZoneInfo
 b = MG._last_boundary(datetime(2026, 10, 13, 22, 0, tzinfo=ZoneInfo("America/Phoenix")).timestamp(), 21, "America/Phoenix")
 ok(datetime.fromtimestamp(b, ZoneInfo("America/Phoenix")).strftime("%H:%M") == "20:56", "F&G daily fetch boundary 21:00 -> 20:56 (jitter)")
 print(f"ALL {passed} TESTS PASSED")
+
+=== END FILE ===
+
+=== FILE: code/tests/test_landfix.py | sha256=9c6ba0c5df6d748ebd5aa0e2c1f9e032bfeb7493a45b623db4dd0aa4d9156400 | bytes=2099 ===
+"""1.1.1: post-fill balances wait for the BOUGHT token to land before logging the total."""
+import os, sys, tempfile
+from pathlib import Path
+_HERE = Path(__file__).resolve().parent
+if _HERE.name == "tests":  # template layout: isolated paper-mode home; code lives one folder up
+    _TMP = tempfile.mkdtemp(prefix="degen-test-")
+    os.environ["DEGEN_HOME"] = _TMP
+    os.environ.setdefault("PAPER_TRADING", "true")
+    Path(_TMP, ".env").write_text("HELIUS_RPC_URL=https://rpc.invalid/test\nPAPER_TRADING=true\n")
+    sys.path.insert(0, str(_HERE.parent)); os.chdir(str(_HERE.parent))
+import unittest
+import after_bals as AB
+
+PRE = {"SOL": 3.0, "USDC": 10.0, "cbBTC": 0.0005, "WETH": 0.017}
+
+
+class LandFix(unittest.TestCase):
+    def test_sold_only_drop_waits_for_bought(self):
+        # sold leg dropped but bought token not credited yet -> keep reading
+        reads = iter([dict(PRE, SOL=2.8), dict(PRE, SOL=2.8, cbBTC=0.00074)])
+        b, src = AB.read_after("W", PRE, "SOL", "cbBTC", 0.2, 0.00024, fetch=lambda a: next(reads), sleep=lambda s: None)
+        self.assertEqual(src, "fresh_confirmed"); self.assertAlmostEqual(b["cbBTC"], 0.00074)
+
+    def test_never_lands_uses_expected(self):
+        b, src = AB.read_after("W", PRE, "SOL", "cbBTC", 0.2, 0.00024, fetch=lambda a: dict(PRE, SOL=2.8), wait_s=0, sleep=lambda s: None)
+        self.assertEqual(src, "computed"); self.assertAlmostEqual(b["cbBTC"], 0.00074); self.assertAlmostEqual(b["SOL"], 2.8)
+
+    def test_edge_post_fill_moved_needs_bought(self):
+        import importlib, sys
+        src = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "_edge_check_run.py"), encoding="utf-8").read()
+        i = src.index("def _post_fill_moved"); j = src.index("\ndef ", i + 5)
+        ns = {}; exec(src[i:j], ns); f = ns["_post_fill_moved"]
+        info = {"sold": "SOL", "bought": "cbBTC", "sell_amt": 0.2, "buy_amt": 0.00024}
+        self.assertFalse(f(PRE, dict(PRE, SOL=2.8), info))
+        self.assertTrue(f(PRE, dict(PRE, SOL=2.8, cbBTC=0.00074), info))
+
+
+if __name__ == "__main__":
+    unittest.main()
 
 === END FILE ===
 

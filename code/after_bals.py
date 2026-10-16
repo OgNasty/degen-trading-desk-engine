@@ -48,15 +48,20 @@ def computed(pre, sold, bought, sell_amt, buy_amt):
 
 
 def shows_fill(b, pre, sold, bought, sell_amt, buy_amt):
+    # 1.1.1: the BOUGHT token must have landed. A read where only the sold leg dropped
+    # (bought not credited yet) undercounts the wallet total and puts a false dip in the chart.
     try:
-        dn = float(pre.get(sold) or 0) - float(b.get(sold) or 0)
         up = float(b.get(bought) or 0) - float(pre.get(bought) or 0)
-        return dn >= 0.5 * float(sell_amt or 0) or up >= 0.5 * float(buy_amt or 0)
+        need = 0.5 * float(buy_amt or 0)
+        if need > 0:
+            return up >= need
+        dn = float(pre.get(sold) or 0) - float(b.get(sold) or 0)
+        return dn >= 0.5 * float(sell_amt or 0) > 0
     except Exception:
         return False
 
 
-def read_after(addr, pre, sold, bought, sell_amt, buy_amt, fetch=None, wait_s=24, step_s=3, sleep=time.sleep):
+def read_after(addr, pre, sold, bought, sell_amt, buy_amt, fetch=None, wait_s=30, step_s=3, sleep=time.sleep):
     """(balances, source) with source 'fresh_confirmed' or 'computed'."""
     fetch = fetch or fetch_confirmed
     t0 = time.monotonic()

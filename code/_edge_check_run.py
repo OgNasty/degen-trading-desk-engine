@@ -90,6 +90,7 @@ import memecoin_mode
 import fade_trend
 import rev_record as _REV  # revflag 2026-10-11 (record-only)
 import friday_rsi
+import h093 as H093  # optional H093 preset: cost-basis h093.enabled (off by default)
 import jupiter_raydium_fallback as JRF
 import edge_policies as EP
 import pair_pnl as PP
@@ -133,7 +134,8 @@ def apply_skip_edge_halving(seh, outcome, fill_info=None, local_tradable=True):
         already = bool(seh.get("streak_halved", False))
         halved = False
         # rules1012 2026-10-11: halve after quiet_checks_to_halve (60) quiet checks, was 2.
-        _need = int(seh.get("quiet_checks_to_halve", 60) or 60)
+        import h093 as _H093  # H093 preset: 30 when cost-basis h093.enabled
+        _need = _H093.quiet_to_halve(globals().get("cb"), int(seh.get("quiet_checks_to_halve", 60) or 60))
         if quiet >= _need and not already:
             mult = mult * 0.5
             already = True
@@ -480,7 +482,7 @@ def get_balances(addr=None, commitment=None):
     # bals["cbBTC_savings"] so wallet/latch totals still include it.
     return savings_mode.trading_balances(cb, bals)
 
-POST_FILL_BAL_WAIT_S = 20.0
+POST_FILL_BAL_WAIT_S = 30.0  # 1.1.1: up to ~30s for the bought token to land
 POST_FILL_BAL_STEP_S = 2.5
 
 def _estimate_post_fill(pre, info):
@@ -492,11 +494,16 @@ def _estimate_post_fill(pre, info):
     return est
 
 def _post_fill_moved(pre, new, info):
-    """True once the sold or bought leg shows at least half the fill amount."""
+    """True once the BOUGHT leg shows at least half the fill amount (1.1.1).
+
+    A sold-only drop means the bought token is not credited yet; logging then undercounts the total."""
     sold, bought = info["sold"], info["bought"]
-    d_sold = float(pre.get(sold) or 0) - float(new.get(sold) or 0)
     d_bought = float(new.get(bought) or 0) - float(pre.get(bought) or 0)
-    return (d_sold >= 0.5 * float(info["sell_amt"] or 0) > 0) or (d_bought >= 0.5 * float(info["buy_amt"] or 0) > 0)
+    need = 0.5 * float(info["buy_amt"] or 0)
+    if need > 0:
+        return d_bought >= need
+    d_sold = float(pre.get(sold) or 0) - float(new.get(sold) or 0)
+    return d_sold >= 0.5 * float(info["sell_amt"] or 0) > 0
 
 def post_fill_balances(pre, info, addr=None):
     """Re-read after a confirmed send until the fill shows up.
@@ -1291,7 +1298,7 @@ def same_pair_streak_blocks(pair):
     st = cb.get("same_pair_streak_cap") or {}
     if not st.get("enabled", True):
         return False
-    cap = int(st.get("max_consecutive_fills", 3))
+    cap = H093.streak_cap(cb, int(st.get("max_consecutive_fills", 3)))  # H093 preset: 5 when on
     return st.get("pair") == pair and int(st.get("count") or 0) >= cap
 
 ROUTE_META = [
@@ -1607,7 +1614,10 @@ except Exception as _mg_err:
     MG = _MG.Gates(cb, fng={"value": None, "error": type(_mg_err).__name__},
                    vwap={"error": type(_mg_err).__name__})
 GREED_MULT = MG.size_mult()
-_rcc = cb.get("reversal_close_cap_pct")
+_rcc = H093.rev_cap_pct(cb)  # H093 preset: 60 when on, else stored reversal_close_cap_pct (85)
+H093_STATE = H093.load_state(cb) if H093.enabled(cb) else None
+print(f"H093 enabled={H093.enabled(cb)} state={None if H093_STATE is None else {k: (v.get('g20_50'), v.get('ret30')) for k, v in (H093_STATE.get('coins') or {}).items()}} "
+      f"src={None if H093_STATE is None else H093_STATE.get('source')} err={None if H093_STATE is None else (H093_STATE.get('error') or H093_STATE.get('stale_error'))}", flush=True)
 REVERSAL_CAP = 1.0 if _rcc is None else max(0.0, min(1.0, float(_rcc) / 100.0))
 print(f"MARKET_GATES fng={MG.fng} vwap={MG.vwap} greed_mult={GREED_MULT} reversal_cap={REVERSAL_CAP}", flush=True)
 
@@ -1658,6 +1668,10 @@ for route, pair, sold, bought, side in (ROUTE_META if not FLAT_MARKET else ()):
     sell_amt, profit_cut, sold_pnl = apply_profit_sale_cut(sold, tilted)
     if GREED_MULT != 1.0:  # FNG > 75: final x0.5 after caps/tilts/cuts
         sell_amt = sell_amt * GREED_MULT
+    _dm = H093.sell_mult(cb, sold, bought, H093_STATE)  # H093 D cut: coin->USDC edge sells
+    if _dm != 1.0:
+        print(f"H093_DCUT {route} x{_dm}", flush=True)
+        sell_amt = sell_amt * _dm
     sold_pnl_r = None if sold_pnl is None else round(sold_pnl, 4)
     skip_reason = inventory_skip_reason(sold, sell_amt, 0.05, _pt["caps"])
     if skip_reason:
@@ -1783,6 +1797,11 @@ def prepare_one_reverse(pair, info):
                 "opp_sell_amt": opp_sell_amt, "opp_sold": opp_sold, "error": "greed_cut_dust",
                 "profit_sale_cut": profit_cut,
             }, None
+    _dm = H093.sell_mult(cb, opp_sold, opp_bought, H093_STATE)  # H093 D cut: coin->USDC reversal sells
+    if _dm != 1.0:
+        print(f"H093_DCUT REV {pair} x{_dm}", flush=True)
+        opp_sell_amt = opp_sell_amt * _dm
+        sell_frac = opp_sell_amt / bal if bal > 0 else 999
     if EP.below_min_size(opp_sell_amt * float(prices.get(opp_sold) or 0), MIN_FLOOR, is_reverse=True):
         print(f"QUOTE_SKIP {route_key} min_size ${opp_sell_amt * float(prices.get(opp_sold) or 0):.2f}<${MIN_FLOOR['min_reverse_usd']}", flush=True)
         return {
@@ -3260,7 +3279,7 @@ closest_list = []
 for route, r in routes_out.items():
     if r.get("gap_net_pct") is not None:
         closest_list.append({"route": route, "gap_pct": r["gap_pct"], "gap_net_pct": r["gap_net_pct"],
-                             "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"),
+                             "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"), "clear_req_x": r.get("clear_req"),  # cblock1016 display only
                              "clears": r.get("clears"), "clears_net": r.get("clears_net"),
                              "eff_pct": r.get("eff_pct"), "edge_pct": r.get("edge_pct"),
                              "required_pct": r.get("eff_pct"),
@@ -3273,7 +3292,7 @@ for pair, items in rev_out.items():
     for r in items:
         if r.get("gap_net_pct") is not None:
             closest_list.append({"route": r.get("route_key") or f"REV:{r['rev_route']}", "gap_pct": r["gap_pct"], "gap_net_pct": r["gap_net_pct"],
-                                 "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"),
+                                 "pts_to_clear": (r.get("clear_req") or {}).get("gap_to_clear_pts"), "clear_req_x": r.get("clear_req"),  # cblock1016 display only
                                  "clears": r.get("clears"), "clears_net": r.get("clears_net"), "size_ok": r.get("size_ok"),
                                  "eff_pct": r.get("eff_pct"), "edge_pct": r.get("edge_pct"),
                                  "required_pct": r.get("eff_pct"),
@@ -3509,7 +3528,8 @@ result = {
     "same_pair_streak": {
         "pair": (cb.get("same_pair_streak_cap") or {}).get("pair"),
         "count": (cb.get("same_pair_streak_cap") or {}).get("count"),
-        "max_consecutive_fills": (cb.get("same_pair_streak_cap") or {}).get("max_consecutive_fills"),
+        "max_consecutive_fills": H093.streak_cap(cb, (cb.get("same_pair_streak_cap") or {}).get("max_consecutive_fills") or 3),
+        "h093_enabled": H093.enabled(cb),
     },
     "closest": closest_list[0] if closest_list else None,
     "closest3": closest_list[:3],
@@ -3807,6 +3827,48 @@ result["held_outside_book"] = {
 
 result["market_gates"] = {"fear_greed": MG.fng, "vwap24h": MG.vwap, "greed_size_mult": GREED_MULT,
                           "reversal_cap": REVERSAL_CAP, "blocked": MG.blocked}
+def _c3_extras(items):
+    """cblock1016 (display/logging only; never alters decisions): per closest-3 route the bot's
+    block reasons, required total % and profit after fees, plus send-failed when this check's send failed."""
+    out = []
+    try:
+        failed = {str((f or {}).get("route")) for f in (globals().get("trade_fails") or []) if isinstance(f, dict)}
+    except Exception:
+        failed = set()
+    for x in items or []:
+        try:
+            cr = x.get("clear_req_x") or {}
+            lab = []
+            hu = cr.get("hurdle_usd")
+            for b in cr.get("blocks") or []:
+                b = str(b)
+                if b == "hurdle":
+                    lab.append(f"${float(hu):.2f} hurdle" if hu is not None else "hurdle")
+                elif b == "below_required_eff":
+                    lab.append("below required %")
+                elif b == "leftover_floor":
+                    lab.append("leftover floor")
+                elif b == "size":
+                    lab.append("size")
+                elif b.startswith("bad_condition"):
+                    lab.append("bad condition")
+                elif b == "route_hit_cooldown":
+                    lab.append("cooldown")
+                elif b == "any_profit_bypass_on":
+                    continue  # a bypass, not a block
+                else:
+                    lab.append(b.replace("_", " "))
+            if x.get("fade_trend_skip") and "fade-trend" not in lab:
+                lab.append("fade-trend")
+            if x.get("bad_condition_skip") and "bad condition" not in lab:
+                lab.append("bad condition")
+            out.append({"route": x.get("route"), "k": lab, "req": cr.get("required_total_pct"),
+                        "en": cr.get("edge_net_pct"), "sf": 1 if str(x.get("route")) in failed else 0})
+        except Exception:
+            out.append({"route": x.get("route") if isinstance(x, dict) else None, "k": [], "req": None, "en": None, "sf": 0})
+    return out
+
+
 # brief log append
 c3 = result.get("closest3") or []
 c3s = ", ".join(f"{x['route']} {x['gap_pct']}%/{x['gap_net_pct']}%" + (f" {x['pts_to_clear']}pts" if x.get('pts_to_clear') is not None else "") for x in c3[:3])
@@ -3928,7 +3990,7 @@ print("LOG_SUMMARY " + json.dumps({
 with open(_DH.HOME_STR + "/sol-usdc-log.md", "a", encoding="utf-8", newline="") as f:
     f.write(log_line)
 try:  # closest0 2026-10-11: live closest3 for desk.json every check (log may only get a one-liner)
-    fade_trend.atomic_write_json(_DH.HOME_STR + "/live-closest.json", {"t": now_iso, "c3": c3s})
+    fade_trend.atomic_write_json(_DH.HOME_STR + "/live-closest.json", {"t": now_iso, "c3": c3s, "x": _c3_extras(c3[:3])})
 except Exception as _lc_err:
     print(f"LIVE_CLOSEST_ERR {type(_lc_err).__name__}", flush=True)
 try:  # status1012: balance status for desk.json every balance_status_every_sec (reporting.json); never in the log

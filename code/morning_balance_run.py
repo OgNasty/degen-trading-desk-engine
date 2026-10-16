@@ -474,7 +474,8 @@ def do_underweight(cb, bals, prices, dry_run=False, executor=None):
                     res["bought"], res["buy_amt"], res["fill_rate"], res["pair"], res["signature"],
                     after, total_after,
                     f"UNDERWEIGHT_DOUBLE {row['target']} was {row['pct']:.2f}% of book; "
-                    f"{res.get('venue')} local signer wallet; remainder_usd {row['remainder_usd']}",
+                    f"{res.get('venue')} local signer wallet; remainder_usd {row['remainder_usd']}"
+                     + ("" if _src == "fresh_confirmed" else "; balances_after estimated (bought token not seen in reads)"),
                     kind="underweight_double",
                 )
             except Exception as e:

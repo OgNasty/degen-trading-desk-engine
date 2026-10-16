@@ -174,6 +174,13 @@ def live_closest(log_time: str, path: Path | None = None):
     if not t or not log_time or t < log_time:
         return None
     items = closest("- closest3: " + line)
+    # cblock1016: per-route extras [.., c, blocks, required%, profit_after_fees%, send_failed]
+    xs = d.get("x") if isinstance(d.get("x"), list) else []
+    for it, x in zip(items, xs):
+        if isinstance(x, dict):
+            while len(it) < 6:
+                it.append(None)
+            it += [[str(k) for k in (x.get("k") or [])][:4], x.get("req"), x.get("en"), 1 if x.get("sf") else 0]
     return (items, t) if items else None
 
 

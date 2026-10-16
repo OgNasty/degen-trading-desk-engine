@@ -54,6 +54,8 @@ DEFAULTS = {
 def cfg_of(cb: dict) -> dict:
     c = dict(DEFAULTS)
     c.update((cb or {}).get("daily_rebalance_v2") or {})
+    import h093 as _H093  # H093 preset: daily_fraction 0.15 when cost-basis h093.enabled
+    c["daily_fraction"] = _H093.daily_fraction(cb, c["daily_fraction"])
     return c
 
 
@@ -337,7 +339,8 @@ def run_morning(cb, bals, prices, dry_run=False, executor=None, fng=None, vol=No
                     res["when_pt"], f"{res['sold']}\u2192{res['bought']}", res["sold"], res["sell_amt"],
                     res["bought"], res["buy_amt"], res["fill_rate"], res["pair"], res["signature"], after, total_after,
                     f"DAILY_V2 target {p['target'][res['bought']]:.2f}% {res['bought']}; 1/10 of ${leg['full_usd']:.2f}; "
-                    f"{res.get('venue')} local signer wallet", kind=res["kind"])
+                    f"{res.get('venue')} local signer wallet"
+                     + ("" if _src == "fresh_confirmed" else "; balances_after estimated (bought token not seen in reads)"), kind=res["kind"])
             except Exception as e:
                 res["log_error"] = type(e).__name__
     if not dry_run:

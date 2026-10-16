@@ -815,5 +815,19 @@
   "interest_mode": {
     "enabled": false,
     "rule": "OFF by default; asked once at setup (apply_features.py --interest on|off) or toggled with interest_mode.py on|off. One switch for both sides: half of the bot's USDC lent on Jupiter Lend (Earn) as jlUSDC (degen_lend.py, lend-config.json) and half of trading SOL (wallet SOL minus reserve_sol 0.05) held as JitoSOL in a separate bucket (sol_stake.py, sol-stake-config.json), never mixed with savings JitoSOL. Lent USDC counts as USDC and the bucket counts as SOL in every balance reader, rebalance, the minute check, P&L and the dashboard. A swap that needs more than is liquid withdraws / swaps back first inside the trading job, then resets to 50/50. Idle rule at the end of each check: liquid above 70% and excess at least 10% of that asset's total (floor $10, cap $500) goes back in. Turning it off withdraws all USDC and swaps the bucket back to SOL on the next check. The Friday empty-account cleanup never closes the jlUSDC or JitoSOL accounts. Each bucket swap costs a little (spread and fees); sol_stake tracker shows swap cost vs staking gain."
+  },
+  "h093": {
+    "enabled": false,
+    "note": "Optional H093 preset (off by default). enabled true = reversal cap 60, skip-halving after 30 quiet checks, same-pair streak cap 5, daily_fraction 0.15, and D sell cuts on SOL/cbBTC/WETH->USDC edge and reversal sells in uptrends. enabled false = the stored settings (85/60/3/0.10), no D cuts. Stored settings are never overwritten, so turning it off restores them.",
+    "reversal_close_cap_pct": 60,
+    "quiet_checks_to_halve": 30,
+    "max_consecutive_fills": 5,
+    "daily_fraction": 0.15,
+    "d_cut": {
+      "g20_50_mult": 0.5,
+      "ret30_mult": 0.15,
+      "ret30_on": 0.15,
+      "ret30_off": 0.05
+    }
   }
 }

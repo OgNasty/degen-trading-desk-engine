@@ -14,7 +14,7 @@ engine's own lines are trusted too, and a short plain summary of what changed is
 import base64, hashlib, json, re, sys
 from pathlib import Path
 
-# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 ----
+# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 ----
 TRUSTED_DOMAINS = {
     "alternative.me", "api.alternative.me", "api.binance.com", "api.cloudflare.com", "api.coingecko.com",
     "api.exchange.coinbase.com", "api.geckoterminal.com", "api.jup.ag", "api.kraken.com",
@@ -37,7 +37,7 @@ TRUSTED_ADDRESSES = {
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
 }
-ENGINE_FOR_BASELINE = "1.1.0"
+ENGINE_FOR_BASELINE = "1.1.1"
 BASELINE_FILE = "security-baseline.json"  # hashes of the risky-looking lines that shipped in 1.0.0
 
 CHECKS = [  # (category, plain label, regex)

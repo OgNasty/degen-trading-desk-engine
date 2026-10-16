@@ -1,6 +1,6 @@
 {
   "engine": "Degen Trading Desk",
-  "version": "1.1.0",
-  "released": "2026-10-15",
-  "notes": "Adds Jupiter Lend for USDC (half of USDC earns lending interest; on by default, off with one command), an optional SOL staking bucket in JitoSOL (off by default; opt in with one command), full accounting of both in balances, rebalances and the dashboard, a single retry on Jupiter rate limits, a mirror safety lock, APR tags and up to 8-decimal amounts on the dashboard, and a new pie-center spider image."
+  "version": "1.1.1",
+  "released": "2026-10-16",
+  "notes": "Post-fill balances now wait (up to ~30 s) for the bought token to land before the wallet total is logged, so a slow credit no longer puts a false dip in the chart (estimated totals are flagged). Each minute check now logs every close route's real block reason, required %, and profit after fees, and the dashboard shows 'clears' only when nothing blocks the trade (amber 'close' otherwise, plus a 'send failed' tag). Adds the optional H093 preset (off by default): one switch for a 60% reversal cap, halving after 30 quiet checks, a same-pair streak cap of 5, a 0.15 daily rebalance fraction and trend-based sell cuts on coin-to-USDC sells."
 }
