@@ -44,7 +44,7 @@ DEFAULT_CFG = {
                      "min_usd_floor": 10.0, "min_usd_cap": 500.0},
     "min_withdraw_usd": 0.05,
     "share_value_max_age_s": 600,
-    "api_base": "https://lite-api.jup.ag/lend/v1/earn",
+    "api_base": "https://api.jup.ag/lend/v1/earn",  # 1.1.2: Jupiter retires the old lite-api host on 2026-10-30; same paths, keyless
 }
 # Last hooked balance read in this process (set by lent_usdc_from_tok).
 LAST = {"read": False, "shares": 0.0, "sv": None, "lent": 0.0}

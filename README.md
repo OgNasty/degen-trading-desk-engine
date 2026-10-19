@@ -6,7 +6,7 @@
   <img src="docs/header.jpg" alt="Degen Trading Desk" width="100%">
 </p>
 
-[![Engine](https://img.shields.io/badge/engine-v1.1.1-39d0ff)](https://github.com/OgNasty/degen-trading-desk-engine/releases/tag/v1.1.1)
+[![Engine](https://img.shields.io/badge/engine-v1.1.2-39d0ff)](https://github.com/OgNasty/degen-trading-desk-engine/releases/tag/v1.1.2)
 ![Chain](https://img.shields.io/badge/chain-Solana-14F195)
 ![Starts in](https://img.shields.io/badge/starts%20in-practice%20mode-ffb547)
 ![Python](https://img.shields.io/badge/python-3.11%2B-3776ab)
@@ -122,7 +122,7 @@ Yes. See the risk notice below. That's why it starts in practice mode and why th
 You do. The wallet key and API keys stay in your own install, are never pasted into chat, and never go into this repo. On Windows, the bot can encrypt them so only your user account can read them.
 
 **Is there a backtester?**
-Not in v1.1.1. The way to test it is practice mode: it runs every rule against live prices and records what it would have traded, with nothing real at risk.
+Not in v1.1.2. The way to test it is practice mode: it runs every rule against live prices and records what it would have traded, with nothing real at risk.
 
 **Which exchanges does it use?**
 Jupiter, Raydium and Orca (through Jupiter), all on Solana. Trades are sent through your own Helius connection, with an optional Alchemy backup.

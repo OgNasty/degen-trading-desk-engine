@@ -14,11 +14,11 @@ engine's own lines are trusted too, and a short plain summary of what changed is
 import base64, hashlib, json, re, sys
 from pathlib import Path
 
-# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 ----
+# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 (1.1.2: old lite-api host dropped) ----
 TRUSTED_DOMAINS = {
     "alternative.me", "api.alternative.me", "api.binance.com", "api.cloudflare.com", "api.coingecko.com",
     "api.exchange.coinbase.com", "api.geckoterminal.com", "api.jup.ag", "api.kraken.com",
-    "jup.ag", "lite-api.jup.ag", "jito.network", "kobe.mainnet.jito.network",  # 1.1: Jupiter Lend, JitoSOL stats
+    "jup.ag", "jito.network", "kobe.mainnet.jito.network",  # 1.1: Jupiter Lend, JitoSOL stats
     "api.mainnet-beta.solana.com", "cloudflareinsights.com", "dash.cloudflare.com", "dashboard.alchemy.com",
     "dashboard.helius.dev", "mainnet.helius-rpc.com",
     "portal.jup.ag", "raw.githubusercontent.com", "rpc.ankr.com",
@@ -37,7 +37,7 @@ TRUSTED_ADDRESSES = {
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
 }
-ENGINE_FOR_BASELINE = "1.1.1"
+ENGINE_FOR_BASELINE = "1.1.2"
 BASELINE_FILE = "security-baseline.json"  # hashes of the risky-looking lines that shipped in 1.0.0
 
 CHECKS = [  # (category, plain label, regex)

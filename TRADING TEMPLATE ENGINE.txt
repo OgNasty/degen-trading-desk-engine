@@ -1,18 +1,18 @@
 #TTE-FORMAT 1
 #BUNDLE Degen Trading Desk engine
-#ENGINE_VERSION 1.1.1
-#RELEASED 2026-10-16
-#BUILT 2026-10-16
-#FILE_COUNT 93
-#TOTAL_BYTES 1774919
-#SETUP_MD sha256=9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 bytes=34860
+#ENGINE_VERSION 1.1.2
+#RELEASED 2026-10-19
+#BUILT 2026-10-19
+#FILE_COUNT 94
+#TOTAL_BYTES 1776866
+#SETUP_MD sha256=476e3b4db6083942a465f113e5c271150bd8429e2aaa6e1ae645ca7f18637038 bytes=35074
 #RULES 1) each block: header line "=== FILE: path | sha256=H | bytes=N[ | enc=base64] ===", newline, exactly N bytes of payload, newline, "=== END FILE ===". 2) N = payload byte length (base64 text length when enc=base64). 3) sha256 is of the decoded raw file. 4) paths are relative, "/"-separated; root = Degen Template folder. 5) __extractor__.py is the tool, not part of the tree. 6) .sh files get mode 755. 7) .env.example -> .env and config.example.json -> config.json are made at install, per SETUP.md.
 #EXTRACT save the __extractor__.py block payload to extract.py; run: python extract.py "TRADING TEMPLATE ENGINE.txt" <out_dir>
 #MANIFEST sha256 bytes path
-#  9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 34860 SETUP.md
-#  5d666325a1c87c9cbc38f6eb341043a29fbb96b74ed91a0d24069480031dcb7d 18442 TEMPLATE-NOTES.md
+#  476e3b4db6083942a465f113e5c271150bd8429e2aaa6e1ae645ca7f18637038 35074 SETUP.md
+#  3f817d7aefaeddca20ed6190aea5478cdcf57e62d868b79a944446ab6eb2aea0 18775 TEMPLATE-NOTES.md
 #  e455e846df5018cbc70f24ce9df85e80392dfa12dfe6f211451dfa853841f324 1304 code/.env.example
-#  295b0d400221341606a71d69a8699b26c8994f69ddc9ebba3992d8551aa0abc8 742 code/ENGINE_VERSION.json
+#  80cd58d3fb5eb1143ded63ff4381d1f3c499efecc9952d997b2cce01fabc16a5 320 code/ENGINE_VERSION.json
 #  29dbd49f95faa4920441b8429c9e06cc5ce8a1998d1eda61137df7eb05b270d5 201561 code/_edge_check_run.py
 #  2aec8f16e2bc16088b01f06c96ef8d105afa6464c986266dd75afcfe9814dd6c 3494 code/after_bals.py
 #  875a20773a1f9140a00cb85dd668d2069871e51a23b29bec41742917235ebf2e 3241 code/apply_features.py
@@ -37,7 +37,7 @@
 #  56ac7f61a4b8eaf83aa4ad8a93a4f1767e8b2fee59232d6a2d8d8e7637730f96 11746 code/dashboard_publish.py
 #  29d0ffce3286e2b64ce6df7d1e61690eba02ac0d908fdb8afbe5a5f4cfbccda4 12414 code/dashboard_snapshot.py
 #  d7694a43ba720a2a4a0c96c33d4b0d8de501e10428747223678864884e09a6c2 13712 code/degen_home.py
-#  f3d067c620503b06bf413fcc2cbc4f65595545a8a6229f9653188e477457e81d 18754 code/degen_lend.py
+#  a9fabcfad9bb33f6be9213b38cf02580e6d65537e804000d149bfbc90cb6073f 18832 code/degen_lend.py
 #  c7f2f52a4bab31e5a3c68ed364e8ddbad5ec00a8b5179c6ea247395f4ef2c745 18489 code/desk_json.py
 #  84a5e31ce341c71fbec9d13aba460e2b595c908e1f416513377582c0020fc205 2119 code/dpapi_protect.py
 #  ea403cf2faf3262e3e02d1a6c7b80de6e6b7cebafa2f4cdddda929afb0f24425 37214 code/edge_policies.py
@@ -68,8 +68,8 @@
 #  a169a1026664dfad80ac6dbceb8a314aed2638c9cc1246a339dfb8ea154fb5a1 170 code/requirements.txt
 #  4fa1717cc0fc88fad567446f6eec1c78757aab853e9aed2b08fadf6ed95e17a6 1024 code/rev_record.py
 #  0f176f71649dd42aaf247eae1901ced3d8de0fc643a157958d7fc2704ea7dd22 64823 code/savings_mode.py
-#  083d08940d40e9fc4b3f10691fd2f62eb48a057d3c846368683e24d778385985 7163 code/security-baseline.json
-#  86e4762f743282fa8e55bd6a5ee66306dfb27d90add24b0c9f7d865aaf5b1b32 15323 code/security_scan.py
+#  6b9e499befff63f3348e41044245bc91849d59d75cbef011545b95dd7807bea6 7163 code/security-baseline.json
+#  a183d10f9d45ad784249a88d18b8a45723899a9b108f7b2030b1833c30d1979f 15339 code/security_scan.py
 #  d96e6831ec37bcc17e5117285aed66c2c56c72308d825015617521effce6592e 10155 code/seed_prices.py
 #  7ca841238a688dd0b6a02197bcfc64f73d5fa2fd02b6e1c83614f3496d145d02 5730 code/seeds/allowed-pairs.json
 #  c9c90f4baa002df7d0fa2a64f8c7ed0345fe7c12e8d8b583f3d52153f1ce81de 191 code/seeds/cadence.json
@@ -92,6 +92,7 @@
 #  5332c337f570ad773b4e92c58d9a7ac0dbd619e01b3f8c0f9c408f78db7c3f59 1344 code/tests/test_late_fill_alert.py
 #  149a987c6bf4608ad51e86d22c62366450f93c34b4502ca0496fd7f6bc691898 2782 code/tests/test_late_fills.py
 #  8f58484a0728516f9578cb7bb68cdce0bf3b9d4056d32c1ab331af6134e0a2e7 4339 code/tests/test_mirror_guard.py
+#  54f0dcb9ba7477f743a79df13247a846dbaece1f7aa77b45d3dd0e5e6577a7ba 1728 code/tests/test_no_lite_api.py
 #  1cc857b2bc0cc0fa35cef21dbf2574f73d44fd1c07f3bbb807ff969ede46c9e1 3744 code/tests/test_paper_not_fail.py
 #  7df55e84b0d998bd71efcbfe1c2ae1534a90fd1c509a8a4e252e9a49e8e509e8 8081 code/tests/test_rent_reclaim.py
 #  0973742d39d24bb291156f65e6f1a4beb857d0e19a37246686326b8b4f4c9ffc 1898 code/tests/test_security_trusted.py
@@ -129,7 +130,7 @@ print('files',n,'hash_failures',bad);sys.exit(1 if bad else 0)
 
 === END FILE ===
 
-=== FILE: SETUP.md | sha256=9e0e9338e758fa458be6bd5cb8a9edcbfd439ef5f3cad296084ef1278220e586 | bytes=34860 ===
+=== FILE: SETUP.md | sha256=476e3b4db6083942a465f113e5c271150bd8429e2aaa6e1ae645ca7f18637038 | bytes=35074 ===
 # Degen Trading Desk — Setup Guide (for a Grok Bot setup skill)
 
 ## Guiding principle: easiest possible setup, absolute minimum user interactions
@@ -296,6 +297,9 @@ Strict order:
 - Keyless sources (alternative.me, Kraken, Binance, Coinbase, CoinGecko) go through `keyless.py`: short backoff on 429 / 5xx / timeouts (Retry-After up to 4 s), then the next source; last-good cache with a max age (Fear & Greed 7 days, VWAP 10 min, volume shares 36 h). If every source fails and the cache is too old: VWAP -> USDC routes blocked; volume shares -> the daily rebalance skips; Fear & Greed (template v1.0.0) -> the F&G rule turns OFF (USDC trades proceed without it; the daily rebalance, which needs the F&G value, skips) and turns back ON as soon as fresh data arrives, with one `FNG_RULE_OFF` / `FNG_RULE_ON` notice per switch. Friday prices: Binance then Coinbase, then the last completed daily close; skipped only when closes are also unavailable. One `KEYLESS_WARN` line per source group per run (also in `keyless-warnings.log`, last 200 lines). Raydium already backs off on 429; Orca quotes go through Jupiter.
 - Tests: `.venv/bin/python tests/test_keyless.py` (mocked 429s, 5xx, timeouts; no network). `update_engine.py apply` runs them as part of its checks.
 
+## v1.1.2 changes
+- Interest mode's Jupiter Lend calls now use api.jup.ag. Jupiter shuts down the old lite-api address on Oct 30, 2026, so lending would have stopped working after that date. Nothing else changes.
+
 ## v1.1.1 changes
 - After a trade the bot waits up to about 30 seconds for the bought token to show up before it logs the wallet total, so the chart no longer dips when a token arrives late. If it never shows, the expected amount is logged and marked as estimated.
 - The dashboard's closest routes say "clears" only when the bot would really trade. Otherwise they show amber "close" with the reason (for example fade-trend or cooldown) and a "send failed" tag when a send didn't go through.
@@ -320,7 +324,7 @@ Strict order:
 
 === END FILE ===
 
-=== FILE: TEMPLATE-NOTES.md | sha256=5d666325a1c87c9cbc38f6eb341043a29fbb96b74ed91a0d24069480031dcb7d | bytes=18442 ===
+=== FILE: TEMPLATE-NOTES.md | sha256=3f817d7aefaeddca20ed6190aea5478cdcf57e62d868b79a944446ab6eb2aea0 | bytes=18775 ===
 # Degen Trading Desk — Notes
 
 ## Template description
@@ -424,6 +428,10 @@ Prepared 2026-10-13 from the live bot. Local only; nothing published.
 - Any site: a Workspace account blocked by its admin, or a site region block, means switch to the step-by-step email signup or skip that service if it's optional. Answer onboarding questionnaires with the minimum ("personal / trading bot / Solana"). Never accept a paid plan or card prompt.
 - Required: Cloudflare (dashboard) and a Solana RPC (Helius preferred; Alchemy alone works). Jupiter's key is recommended, but keyless works.
 
+## v1.1.2: Jupiter endpoint move
+- `degen_lend.py` `api_base` default is now `https://api.jup.ag/lend/v1/earn` (Jupiter shuts down the old lite-api host on 2026-10-30; same paths, keyless). The old host is no longer on the security scan's trusted list.
+- Tests: `tests/test_no_lite_api.py` fails if any file points at the old host.
+
 ## v1.1.1: accurate post-fill totals, honest "clears", optional H093 preset
 - Post-fill balances: `after_bals.shows_fill` and `_edge_check_run._post_fill_moved` count a fill as landed only once the BOUGHT token shows at least half the fill (a sold-only drop is not enough). Reads retry up to ~30 s (`read_after` wait_s=30, `POST_FILL_BAL_WAIT_S=30`). If it never lands, the expected balances are logged and the trade note says "balances_after estimated (bought token not seen in reads)". Trading isn't delayed or repeated; this only changes what gets logged.
 - Closest routes: each entry in the per-check summary carries `clear_req_x` (block reasons such as fade-trend / cooldown / streak cap, required %, profit after fees, send failed). `desk_json.py` passes it to `live-closest.json` as `x`. The dashboard shows "clears" only when the shortfall is <= 0 and nothing blocks it; otherwise amber "close" plus the reason, and a "send failed" tag. The $ hurdle and "below required %" stay in the hover text only. Mobile keeps one line per route at a fixed row height. Logging only; no trade decision changed.
@@ -477,12 +485,12 @@ DEGEN_RUN_SIDE=
 
 === END FILE ===
 
-=== FILE: code/ENGINE_VERSION.json | sha256=295b0d400221341606a71d69a8699b26c8994f69ddc9ebba3992d8551aa0abc8 | bytes=742 ===
+=== FILE: code/ENGINE_VERSION.json | sha256=80cd58d3fb5eb1143ded63ff4381d1f3c499efecc9952d997b2cce01fabc16a5 | bytes=320 ===
 {
   "engine": "Degen Trading Desk",
-  "version": "1.1.1",
-  "released": "2026-10-16",
-  "notes": "Post-fill balances now wait (up to ~30 s) for the bought token to land before the wallet total is logged, so a slow credit no longer puts a false dip in the chart (estimated totals are flagged). Each minute check now logs every close route's real block reason, required %, and profit after fees, and the dashboard shows 'clears' only when nothing blocks the trade (amber 'close' otherwise, plus a 'send failed' tag). Adds the optional H093 preset (off by default): one switch for a 60% reversal cap, halving after 30 quiet checks, a same-pair streak cap of 5, a 0.15 daily rebalance fraction and trend-based sell cuts on coin-to-USDC sells."
+  "version": "1.1.2",
+  "released": "2026-10-19",
+  "notes": "Moves Jupiter Lend (interest mode) from Jupiter's old lite-api host, which shuts down on 2026-10-30, to api.jup.ag (same paths, still keyless). Nothing else changes. A new test fails if any file points at the old host."
 }
 
 === END FILE ===
@@ -10079,7 +10087,7 @@ def next_jittered(after, interval: int | None = None):
 
 === END FILE ===
 
-=== FILE: code/degen_lend.py | sha256=f3d067c620503b06bf413fcc2cbc4f65595545a8a6229f9653188e477457e81d | bytes=18754 ===
+=== FILE: code/degen_lend.py | sha256=a9fabcfad9bb33f6be9213b38cf02580e6d65537e804000d149bfbc90cb6073f | bytes=18832 ===
 """Jupiter Lend (Earn) for the bot's USDC (lend1015, 2026-10-15).
 
 USDC only:
@@ -10126,7 +10134,7 @@ DEFAULT_CFG = {
                      "min_usd_floor": 10.0, "min_usd_cap": 500.0},
     "min_withdraw_usd": 0.05,
     "share_value_max_age_s": 600,
-    "api_base": "https://lite-api.jup.ag/lend/v1/earn",
+    "api_base": "https://api.jup.ag/lend/v1/earn",  # 1.1.2: Jupiter retires the old lite-api host on 2026-10-30; same paths, keyless
 }
 # Last hooked balance read in this process (set by lent_usdc_from_tok).
 LAST = {"read": False, "shares": 0.0, "sv": None, "lent": 0.0}
@@ -19392,9 +19400,9 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/security-baseline.json | sha256=083d08940d40e9fc4b3f10691fd2f62eb48a057d3c846368683e24d778385985 | bytes=7163 ===
+=== FILE: code/security-baseline.json | sha256=6b9e499befff63f3348e41044245bc91849d59d75cbef011545b95dd7807bea6 | bytes=7163 ===
 {
-"engine": "1.1.1",
+"engine": "1.1.2",
 "lines": [
 "0061eab649e6f424dbec",
 "0095a3c92c8ecb8ae77d",
@@ -19698,7 +19706,7 @@ if __name__ == "__main__":
 
 === END FILE ===
 
-=== FILE: code/security_scan.py | sha256=86e4762f743282fa8e55bd6a5ee66306dfb27d90add24b0c9f7d865aaf5b1b32 | bytes=15323 ===
+=== FILE: code/security_scan.py | sha256=a183d10f9d45ad784249a88d18b8a45723899a9b108f7b2030b1833c30d1979f | bytes=15339 ===
 #!/usr/bin/env python3
 """Pre-install / pre-update security check (template). Stdlib only; never prints secrets; sends nothing.
 
@@ -19715,11 +19723,11 @@ engine's own lines are trusted too, and a short plain summary of what changed is
 import base64, hashlib, json, re, sys
 from pathlib import Path
 
-# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 ----
+# ---- trusted list: built from engine 1.0.0, extended for 1.1.0 and 1.1.1 (1.1.2: old lite-api host dropped) ----
 TRUSTED_DOMAINS = {
     "alternative.me", "api.alternative.me", "api.binance.com", "api.cloudflare.com", "api.coingecko.com",
     "api.exchange.coinbase.com", "api.geckoterminal.com", "api.jup.ag", "api.kraken.com",
-    "jup.ag", "lite-api.jup.ag", "jito.network", "kobe.mainnet.jito.network",  # 1.1: Jupiter Lend, JitoSOL stats
+    "jup.ag", "jito.network", "kobe.mainnet.jito.network",  # 1.1: Jupiter Lend, JitoSOL stats
     "api.mainnet-beta.solana.com", "cloudflareinsights.com", "dash.cloudflare.com", "dashboard.alchemy.com",
     "dashboard.helius.dev", "mainnet.helius-rpc.com",
     "portal.jup.ag", "raw.githubusercontent.com", "rpc.ankr.com",
@@ -19738,7 +19746,7 @@ TRUSTED_ADDRESSES = {
     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
     "cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij",
 }
-ENGINE_FOR_BASELINE = "1.1.1"
+ENGINE_FOR_BASELINE = "1.1.2"
 BASELINE_FILE = "security-baseline.json"  # hashes of the risky-looking lines that shipped in 1.0.0
 
 CHECKS = [  # (category, plain label, regex)
@@ -23893,6 +23901,48 @@ class GuardUnit(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+=== END FILE ===
+
+=== FILE: code/tests/test_no_lite_api.py | sha256=54f0dcb9ba7477f743a79df13247a846dbaece1f7aa77b45d3dd0e5e6577a7ba | bytes=1728 ===
+#!/usr/bin/env python3
+"""No engine file may point at Jupiter's retired lite-api host (shut down 2026-10-30); use api.jup.ag.
+Checks the shipped code, docs and examples only (owner data, logs and backups are skipped).
+Offline. python tests/test_no_lite_api.py"""
+import os, sys, tempfile
+from pathlib import Path
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent          # template root (SETUP.md + code/)
+OLD_HOST = "lite-api" + ".jup.ag"  # split so this file itself doesn't match
+EXT = (".py", ".md", ".js", ".html", ".sh", ".ps1", ".toml", ".example", ".txt")
+SKIP = {".venv", "engine-backups", "backups", "__pycache__", "logs", "state", "data", "node_modules"}
+
+
+def _engine_files():
+    for p in ROOT.rglob("*"):
+        rel = p.relative_to(ROOT)
+        if not p.is_file() or SKIP & set(rel.parts) or ".bak" in p.name:
+            continue
+        if p.suffix in EXT or p.name.endswith(".example.json") or p.name in ("ENGINE_VERSION.json", "security-baseline.json"):
+            yield rel.as_posix(), p
+
+
+def test_no_file_points_at_lite_api():
+    hits = [rel for rel, p in _engine_files() if OLD_HOST.encode() in p.read_bytes().lower()]
+    assert not hits, "old Jupiter lite-api host still used in: " + ", ".join(sorted(hits))
+
+
+def test_lend_default_uses_api_jup_ag():
+    os.environ.setdefault("DEGEN_HOME", tempfile.mkdtemp(prefix="degen-test-"))
+    os.environ.setdefault("PAPER_TRADING", "true")
+    sys.path.insert(0, str(HERE.parent))
+    import degen_lend as L
+    assert L.DEFAULT_CFG["api_base"].startswith("https://api.jup.ag/lend/v1/earn"), L.DEFAULT_CFG["api_base"]
+
+
+if __name__ == "__main__":
+    for k, v in list(globals().items()):
+        if k.startswith("test_"): v(); print("ok", k)
 
 === END FILE ===
 

@@ -1,6 +1,6 @@
 {
   "engine": "Degen Trading Desk",
-  "version": "1.1.1",
-  "released": "2026-10-16",
-  "notes": "Post-fill balances now wait (up to ~30 s) for the bought token to land before the wallet total is logged, so a slow credit no longer puts a false dip in the chart (estimated totals are flagged). Each minute check now logs every close route's real block reason, required %, and profit after fees, and the dashboard shows 'clears' only when nothing blocks the trade (amber 'close' otherwise, plus a 'send failed' tag). Adds the optional H093 preset (off by default): one switch for a 60% reversal cap, halving after 30 quiet checks, a same-pair streak cap of 5, a 0.15 daily rebalance fraction and trend-based sell cuts on coin-to-USDC sells."
+  "version": "1.1.2",
+  "released": "2026-10-19",
+  "notes": "Moves Jupiter Lend (interest mode) from Jupiter's old lite-api host, which shuts down on 2026-10-30, to api.jup.ag (same paths, still keyless). Nothing else changes. A new test fails if any file points at the old host."
 }
